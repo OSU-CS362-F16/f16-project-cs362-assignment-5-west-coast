@@ -14,8 +14,30 @@
       <version>4.2</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+    <groupId>net.sourceforge.cobertura</groupId>
+    <artifactId>cobertura</artifactId>
+    <version>2.1.1</version>
+</dependency>
+<dependency>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>findbugs-maven-plugin</artifactId>
+    <version>3.0.4</version>
+</dependency>
   </dependencies>
-
+	<build><plugins><plugin>
+	    <groupId>org.pitest</groupId>
+	    <artifactId>pitest-maven</artifactId>
+	    <version>0.32</version>
+	    <configuration>
+	        <targetClasses>
+	            <param>com.your.package.root.want.to.mutate*</param>
+	        </targetClasses>
+	        <targetTests>
+	            <param>com.your.package.root*</param>
+	        </targetTests>
+	    </configuration>
+	</plugin></plugins></build>
 
 
 </project>
