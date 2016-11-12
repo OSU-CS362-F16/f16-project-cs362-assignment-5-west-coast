@@ -1,3 +1,4 @@
+package osu.cs362.URLValidator;
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -26,7 +27,12 @@
       public boolean valid;
 
       public ResultPair(String item, boolean valid) {
-         this.item = item;
+         //BUG FIX, if item is empty, this.item is not initialized
+    	 if (item.length() == 0) {
+    		  this.item = "";
+    	 }
+    	 else
+    		  this.item = item;
          this.valid = valid;  //Weather the individual part of url is valid.
       }
    }
