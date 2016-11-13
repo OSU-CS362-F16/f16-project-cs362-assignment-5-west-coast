@@ -17,25 +17,119 @@ import java.util.*;
 
 
 public class URLValidatorTest {
+	static String[] arrayUrls = {
+	"http://foo.bar.com/",  // valid http URL
+	"http://foo//foo.bar.com//",  // ALLOW_2_SLASHES
+	"http//foo.bar.com/",  // invalid
+	"http://foo",   // NO_FRAGMENTS
+	
+	"https://foo.bar.com/",
+	"https://foo//foo.bar.com//",
+	"https//foo.bar.com/",
+	"https://foo",
+	
+	"ftp://foo.bar.com/",
+	"ftp://foo//foo.bar.com//",
+	"ftp//foo.bar.com/",
+	"ftp://foo",
+	
+	"file:///C:/foo.bar.html/",  // ALLOW_LOCAL_URLS
+	"file:///C://foo//foo.bar.html//", // ALLOW_LOCAL_URLS &&  ALLOW_2_SLASHES
+	"file///C:/foo.bar.html/", // invalid
+	
+	"abc://foo.bar.com/", // regexStr valid
+	"123://foo.bar.com/", // regexStr invalid - numbers
+	"HTTP://foo.bar.com/" // regexStr invalid - uppercase
+	};
+	
+	static String[] schemes = {"http","https"};  // default includes 'ftp' as well
+	static String regexStr = "[a-z]";
+	
+	private void checkUrls(boolean[] chkStates, String assertStr, UrlValidator uv) {
+		int idx = 0;
+		for(String s:arrayUrls) {
+			assertEquals(assertStr+ "; \"" + s + "\"", chkStates[idx], uv.isValid(s));
+			idx++;
+		}
+	}
+	
+	@Test
+	public void URLValidatorSchemesConstructorTest() {
+		UrlValidator uv = new UrlValidator(schemes);
+		checkUrls( new boolean[]{ true, false, false, false, 
+					true, false, false, false, 
+					false, false, false, false,
+					false, false, false,
+					false, false, false }
+				, "UrlValidator constructed with " + printSchemes(schemes), uv);
+	}
+	
 	@Test
 	public void URLValidatorConstructorTest() {
-		String[] schemes = {"http","https"};
-		UrlValidator urlValidatorSchemes = new UrlValidator(schemes);
-		assertEquals("UrlValidator constructed with schemes {\"http\", \"https\"}; valid URL returned invalid", true, urlValidatorSchemes.isValid("http://foo.bar.com/") );
-		assertEquals("UrlValidator constructed with schemes {\"http\", \"https\"}; invalid URL returned valid", false, urlValidatorSchemes.isValid("ftp://foo.bar.com/") );
-		
-		UrlValidator urlValidatorNoParams = new UrlValidator();
-		assertEquals("UrlValidator constructed with no input; valid URL returned invalid", true, urlValidatorNoParams.isValid("ftp://foo.bar.com/") );
-		assertEquals("UrlValidator constructed with no input; invalid URL returned valid", false, urlValidatorNoParams.isValid("localhost://foo.bar.com/") );
-
-		UrlValidator urlValidatorOptions = new UrlValidator(UrlValidator.ALLOW_2_SLASHES);
-		assertEquals("UrlValidator constructed with \"ALLOW_2_SLASHES\" option; valid URL returned invalid", true, urlValidatorOptions.isValid("ftp://foo.bar.com/") );
-		assertEquals("UrlValidator constructed with \"ALLOW_2_SLASHES\" option; invalid URL returned valid", false, urlValidatorOptions.isValid("ftp:///foo//foo.bar.com/") );
-		
-		UrlValidator urlValidatorSchemesOptions = new UrlValidator(schemes, UrlValidator.NO_FRAGMENTS);
-		assertEquals("UrlValidator constructed with " + schemes + " \"NO_FRAGMENTS\" option; valid URL returned invalid", true, urlValidatorOptions.isValid("ftp://foo.bar.com/") );
-		assertEquals("UrlValidator constructed with " + schemes + " \"NO_FRAGMENTS\" option; invalid URL returned valid", false, urlValidatorOptions.isValid("ftp:///foo//foo.bar") );
-		
+		UrlValidator uv = new UrlValidator();
+		checkUrls( new boolean[]{ true, false, false, false, 
+				true, false, false, false, 
+				true, false, false, false,
+				false, false, false,
+				false, false, false }
+			, "UrlValidator constructed with no input ", uv);
+	}
+	
+	
+	@Test
+	public void URLValidatorOptionsConstructorTest() {
+		UrlValidator uv = new UrlValidator(UrlValidator.ALLOW_2_SLASHES);
+		checkUrls( new boolean[]{ true, true, false, false, 
+				true, true, false, false, 
+				true, true, false, false,
+				false, false, false,
+				false, false, false }
+			, "UrlValidator constructed with \"ALLOW_2_SLASHES\" ", uv);
+	}
+	
+	@Test
+	public void URLValidatorSchemesOptionsConstructorTest() {
+		UrlValidator uv = new UrlValidator(schemes, UrlValidator.NO_FRAGMENTS);
+		checkUrls( new boolean[]{ true, false, false, false, 
+				true, false, false, false, 
+				false, false, false, false,
+				false, false, false,
+				false, false, false }
+			, "UrlValidator constructed " + printSchemes(schemes) + " and \"NO_FRAGMENTS\" ", uv);
+	}
+	
+	@Test
+	public void URLValidatorRegexOptionsConstructorTest() {
+		RegexValidator authorityValidator = new RegexValidator(regexStr);
+		UrlValidator uv = new UrlValidator(authorityValidator, UrlValidator.ALLOW_LOCAL_URLS);
+		checkUrls( new boolean[]{ true, false, false, false, 
+				true, false, false, false, 
+				true, false, false, false,
+				true, false, false,
+				true, false, false }
+			, "UrlValidator constructed with authority validator: " + regexStr + " and \"ALLOW_LOCAL_URLS\"", uv);
+	}
+	
+	@Test
+	public void URLValidatorSchemesRegexOptionsConstructorTest() {
+		RegexValidator authorityValidator = new RegexValidator(regexStr);
+		UrlValidator uv = new UrlValidator(schemes, authorityValidator, UrlValidator.NO_FRAGMENTS);
+		checkUrls( new boolean[]{ true, false, false, false, 
+				true, false, false, false, 
+				true, false, false, false,
+				true, false, false,
+				true, false, false }
+			, "UrlValidator constructed with authority validator: " + regexStr + " and \"ALLOW_LOCAL_URLS\"", uv);
 	}
 
+	private String printSchemes(String[] arrSchemes) {
+		String str;
+		str = "{";
+		for(String s:arrSchemes) {
+			str = str + "[" + s + "]";
+		}
+		str = str + "}";
+		return str;
+	}
+	
 }
