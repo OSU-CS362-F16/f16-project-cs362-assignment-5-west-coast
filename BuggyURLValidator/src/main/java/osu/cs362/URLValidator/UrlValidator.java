@@ -164,6 +164,11 @@ public class UrlValidator implements Serializable {
      * Holds the set of current validation options.
      */
     private final long options;
+    
+    // For debug, return the current options
+    public long getOptions() {
+    	return(options);
+    }
 
     /**
      * The set of schemes that are allowed to be in a URL.
