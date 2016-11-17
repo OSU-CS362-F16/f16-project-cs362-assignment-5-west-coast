@@ -24,6 +24,11 @@
     <artifactId>findbugs-maven-plugin</artifactId>
     <version>3.0.4</version>
 </dependency>
+<dependency>
+    <groupId>net.sourceforge.cobertura</groupId>
+    <artifactId>cobertura</artifactId>
+    <version>2.1.1</version>
+</dependency>
   </dependencies>
 	<build><plugins><plugin>
 	    <groupId>org.pitest</groupId>
@@ -38,6 +43,4 @@
 	        </targetTests>
 	    </configuration>
 	</plugin></plugins></build>
-
-
 </project>
