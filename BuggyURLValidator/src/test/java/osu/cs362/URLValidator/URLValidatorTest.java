@@ -8,109 +8,238 @@ import org.jaxen.function.StringFunction;
 //http://docs.oracle.com/javase/7/docs/api/java/util/Random.html
 //reference: http://stackoverflow.com/questions/31423643/try-catch-in-a-junit-test
 // org.apache.commons.validator
+// stackoverflow.com/questions
+
 
 import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.*;
+import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 
 public class URLValidatorTest {
-	static Map<String, String> mapUrls = new HashMap<String, String>();
-	//static Map<String, long> optionValues = new HashMap<String, long>();
+	private List<String> listResults = new ArrayList<String>();
+	private int testCaseIndex = 0;
+	private boolean verbose = false;
 
-	@Before
-	public void runBefore() {
-		mapUrls.put("Valid_http", "http://foo.bar.com/");
-		mapUrls.put("TwoSlashes_Valid_http", "http://foo//foo.bar.com//");
-		mapUrls.put("Invalid_http", "http/foo.bar.com/");  // invalid
-		mapUrls.put("Fragment_http", "http://foo");   // NO_FRAGMENTS
-
-		mapUrls.put("Valid_https", "https://foo.bar.com/");
-		mapUrls.put("TwoSlashes_Valid_https","https://foo//foo.bar.com//");
-		mapUrls.put("Invalid_https", "https//foo..bar.com/");
-		mapUrls.put("Fragment_https", "https://foo");
-
-		mapUrls.put("Valid_ftp", "ftp://foo.bar.com/");
-		mapUrls.put("TwoSlashes_Valid_ftp", "ftp://foo//foo.bar.com//");
-		mapUrls.put("Invalid_ftp","ftp:///foo.bar.com/");
-		mapUrls.put("Fragment_ftp","ftp://foo");
-
-		mapUrls.put("Valid_file", "file://C:/foo.bar.html/");  // ALLOW_LOCAL_URLS
-		mapUrls.put("TwoSlashes_valid_file", "file://C://foo//foo.bar.html//"); // ALLOW_LOCAL_URLS &&  ALLOW_2_SLASHES
-		mapUrls.put("Invalid_file","file///C:/foo.bar.html/"); // invalid
-		mapUrls.put("Fragment_file", "file://c:/foo");
-
-		mapUrls.put("Domain_abc","abc://foo.bar.com/"); // regexStr valid
-		mapUrls.put("Domain_123","123://foo.bar.com/"); // regexStr invalid - numbers
-		mapUrls.put("Valid_HTTP","HTTP://foo.bar.com/" );// regexStr invalid - uppercase
-		mapUrls.put("Valid_http_FOO.bar.com","http://FOO.bar.com/" );
-		mapUrls.put("Valid_http_foo.BAR.com","http://foo.BAR.com/" );
-		mapUrls.put("Valid_http","http://foo.bar.COM/" );
-	}
-
-
+	// list of test strings
 	static String[] arrayUrls
 	= {
 	"http:/foo.bar.com/",  // valid http URL
 	"http://foo//foo.bar.com//",  // ALLOW_2_SLASHES
 	"http//foo.bar.com/",  // invalid
 	"http://foo",   // NO_FRAGMENTS
-
+	
 	"https:/foo.bar.com/",
 	"https://foo//foo.bar.com//",
 	"https//foo..bar.com/",
 	"https://foo",
-
+	
 	"ftp:/foo.bar.com/",
 	"ftp://foo//foo.bar.com//",
 	"ftp:///foo.bar.com/",
 	"ftp://foo",
-
+	
 	"file:/C:/foo.bar.html/",  // ALLOW_LOCAL_URLS
 	"file://C://foo//foo.bar.html//", // ALLOW_LOCAL_URLS &&  ALLOW_2_SLASHES
 	"file///C:/foo.bar.html/", // invalid
-	"file://c:/foo",
-
+	"file://c:/foo", 
+	
 	"abc://foo.bar.com/", // regexStr valid
 	"123://foo.bar.com/", // regexStr invalid - numbers
 	"HTTP://foo.bar.com/", // regexStr invalid - uppercase
 	"http://FOO.bar.com/",
 	"http://foo.BAR.com/",
-	"http://foo.bar.COM/"
+	"http://foo.bar.COM/",
+	
+	"\\",
+	"\\\\",	
+	"http:\\foo.bar.com\\",  // valid http URL
+	"http:\\\\foo\\\\foo.bar.com\\",  // ALLOW_2_SLASHES
+	"http\\\\foo.bar.com\\",  // invalid
+	"http:\\\\foo",   // NO_FRAGMENTS
+
+	"10.112.104.5://foo.bar.com/",
+	"10.112.104.5:3000",
+	"",
+	":",
+	"//",
+	"//../////",
+	"Réal.com"
 	};
 
 
-	static String[] defaultSchemes = {"defaults {http, https , ftp}" };
+	// schemes
+	static String[] defaultSchemes = {"http", "https", "ftp" }; 
 	static String[] schemes = {"http","https"};  // default includes 'ftp' as well
+	
+	// regex option
 	static String regexStr = "[a-z]";
 	static String regexNotSpecified = "not specified in constructor ";
-
-
-	private void checkUrls(boolean[] chkStates, String assertStr, UrlValidator uv) {
-		int idx = 0;
-		for(String s:arrayUrls) {
-			assertEquals(assertStr+ "; \"" + s + "\"", chkStates[idx], uv.isValid(s));
-			idx++;
-		}
+	
+	// options
+	private long[] options = {
+			0,
+			UrlValidator.ALLOW_ALL_SCHEMES,
+			UrlValidator.ALLOW_2_SLASHES,
+			UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,			
+			UrlValidator.NO_FRAGMENTS,
+			UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES,
+			UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_2_SLASHES,
+			UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,
+			UrlValidator.ALLOW_LOCAL_URLS,
+			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_ALL_SCHEMES,
+			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_2_SLASHES,
+			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,			
+			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS,
+			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES,
+			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_2_SLASHES,
+			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,
+	};
+	
+	@Test 
+	public void UrlValidatorAllTest() {
+		printArrayUrlsTitle();
+		URLValidatorSchemesConstructor();
+		URLValidatorConstructorTest();
+		URLValidatorOptionsConstructorTest();
+		URLValidatorSchemesOptionsConstructorTest();
+		URLValidatorRegexOptionsConstructorTest();
+		URLValidatorSchemesRegexOptionsConstructorTest();
+		URLValidatorGetInstanceTest();
+		printResults();
+	}
+	
+	@Test
+	public void IsValidAuthorityTest() {
+		UrlValidatorExtension uv = new UrlValidatorExtension();
+		assertEquals("null input to isValidAuthority returns true",false,uv.isValidAuthority(null));
+		assertEquals("authorityMatcher should not match but returns true",false,uv.isValidAuthority(""));
+		
 	}
 
-	private Map<String, Boolean> checkmapUrls(UrlValidator uv) {
-		Map<String, Boolean> resultsUrls = new HashMap<String, Boolean>();
-		for  (String s:arrayUrls) {
-			resultsUrls.put(s, uv.isValid(s));
-		}
-		return resultsUrls;
+	@Test
+	public void IsValidPathTest() {
+		UrlValidatorExtension uv = new UrlValidatorExtension();
+		assertEquals("null input to isValidPath returns true",false,uv.isValidPath(null));
+		assertEquals("path should not match but returns true",false,uv.isValidPath(""));
 	}
+	
+	@Test
+	public void IsValidQuery() {
+		UrlValidatorExtension uv = new UrlValidatorExtension();
+		assertEquals("null input to isValidQuery returns false",true,uv.isValidQuery(null));
+		assertEquals("query should not match but returns true",false,uv.isValidQuery(""));
+	}
+	
+	@Test
+	public void IsValidFragment() {
+		UrlValidatorExtension uv = new UrlValidatorExtension(UrlValidator.NO_FRAGMENTS);
+		assertEquals("NO_FRAGMENTS is set", false, uv.isValidFragment("foo.com"));
+		assertEquals("null input to isValidFragment returns false",true,uv.isValidFragment(null));
+		assertEquals("fragment should not match but returns true",false,uv.isValidFragment(""));
+	}
+	
+	
+	// Print Titles and results from the UrlValidatorAllTest
+	public void printArrayUrlsTitle() {
+		try {
+			PrintWriter urlWriter = new PrintWriter("./target/results.csv", "UTF-8");
+			try {
+				urlWriter.print("testcase,scheme,option,regex");
+				for (int k=0; k<arrayUrls.length; k++){
+					if (arrayUrls[k] == "") {
+						urlWriter.print(",\"\"");
+					}
+					else {
+						urlWriter.print("," + arrayUrls[k] );
+					}
+				}
+				urlWriter.println(",null,");
+			} 
+			catch (Exception e) {
+				System.out.println("couldn't write results file titles: Message: " + e.getMessage() + " Localized: " + e.getLocalizedMessage());
+				System.out.println("");
+			}
+			urlWriter.close();
+		} catch (Exception ee) {
+			System.out.println("file creation message: Message: " + ee.getMessage() + " Localized: " + ee.getLocalizedMessage());
+			System.out.println("");			
+		}		
+	}
+	
+	
+	public void printResults() {
+		try {
+			FileWriter fw = new FileWriter("./target/results.csv", true);
+			PrintWriter writer = new PrintWriter(new BufferedWriter(fw));
+			try {
+				for(int i=0; i<listResults.size(); i++) {
+					writer.println(listResults.get(i));
+				}			
+			} catch (Exception e) {
+				System.out.println("couldn't write results file: Message: " + e.getMessage() + " Localized: " + e.getLocalizedMessage());
+				System.out.println("");
+			}
+			writer.close();
+		} catch (Exception ee) {
+			System.out.println("file creation message: Message: " + ee.getMessage() + " Localized: " + ee.getLocalizedMessage());
+			System.out.println("");			
+		}
+	}
+	
+	
+// add checks later
+//	private void checkUrls(boolean[] chkStates, String assertStr, UrlValidator uv) {
+//		for (int i = 0; i < arrayUrls.length; i++) {
+//			assertEquals(assertStr+ "; \"" + arrayUrls[i] + "\"", chkStates[i], uv.isValid(arrayUrls[i]));
+//		}
+//	}
+	
+	
+	// check isValid result for each string, save results to print
+	private String checkIsValidUrls(UrlValidator uv) {
+		String s = new String();
+		for (int i = 0; i < arrayUrls.length; i++) {
+			Boolean result = uv.isValid(arrayUrls[i]);
+			s = s + "," + result.toString();
+			if (verbose) {
+				System.out.println("\"" + arrayUrls[i] + "\"" + "  :  " + result.toString());
+			}
+		}
+		try {
+			Boolean result = uv.isValid(null);
+			s = s + "," + result.toString();
+			if (verbose) {
+				System.out.println("\"null\"" + "  :  " +  result.toString());
+			}
+		}
+		catch (NullPointerException e) {
+			s = s + ",exception";
+			if (verbose) {
+				System.out.println("\"null\"" + "  :  exception");
+			}
+		}
+		if (verbose) {
+			System.out.println(s);
+		}
+		return s;
+	}
+		
 
+	// print the options
 	private String printOptions(Integer val){
 		switch (val) {
 		case 0:
-			return new String("NO options set");
+			return new String("NONE");
 		case 1:
 			return new String("ALLOW_ALL_SCHEMES");
 		case 2:
 			return new String("ALLOW_2_SLASHES");
-		case 3:
+		case 3: 
 			return new String("ALLOW_ALL_SCHEMES + ALLOW_2_SLASHES");
 		case 4:
 			return new String("NO_FRAGMENTS");
@@ -135,129 +264,108 @@ public class URLValidatorTest {
 		case 14:
 			return new String("ALLOW_LOCAL_URLS + NO_FRAGMENTS + ALLOW_2_SLASHES");
 		case 15:
-			return new String("ALLOW_LOCAL_URLS + NO_FRAGMENTS + ALLOW_2_SLASHES + ALLOW_ALL_SCHEMES");
+			return new String("ALLOW_LOCAL_URLS + NO_FRAGMENTS + ALLOW_2_SLASHES + ALLOW_ALL_SCHEMES");					 
 		}
 		return new String("Unexpected combination of options with value: " + val);
 	}
-
+	
 	private String printUrlValidatorInfo(String[] schemes, Integer options, String regex) {
-		return new String("UrlValidator construction: schemes:  " + printSchemes(schemes)
-		 	+ ", options: " + printOptions(options) + ", regular expression: " + regex);
+		return new String(testCaseIndex++ + "," + printSchemes(schemes)
+		 	+ "," + printOptions(options) + "," + regex);
 	}
-
-	private void printMap(Map<String, Boolean> map ) {
-		for(Map.Entry<String, Boolean> m:map.entrySet()) {
-			// System.out.println("\"" + m.getKey().toString() +"\"; " +m.getValue().toString());
-		}
-	}
-
-	@Test
-	public void URLValidatorSchemesConstructorTest() {
+	
+	private void URLValidatorSchemesConstructor() {
 		UrlValidator uv = new UrlValidator(schemes);
 		String s = printUrlValidatorInfo(schemes, (int) uv.getOptions(), regexNotSpecified);
-		// System.out.println("\nTest constructor: UrlValidator(" + printSchemes(schemes) + ")");
-		// System.out.println(s);
-		Map<String, Boolean> checkMap = checkmapUrls(uv);
-		printMap(checkMap);
-//		checkUrls( new boolean[]{ true, false, false, false,
-//					true, false, false, false,
-//					false, false, false, false,
-//					false, false, false,
-//					false, false, false }
-//				, s, uv);
+		listResults.add(s + checkIsValidUrls(uv));
+		if (verbose) {
+			System.out.println("\nTest constructor: UrlValidator(" + printSchemes(schemes) + ")");
+			System.out.println(s);
+			System.out.println(listResults.get(listResults.size()-1));
+		}
 	}
-
-	@Test
-	public void URLValidatorConstructorTest() {
+	
+	private void URLValidatorConstructorTest() {
 		UrlValidator uv = new UrlValidator();
 		String s = printUrlValidatorInfo(defaultSchemes, (int) uv.getOptions(), regexNotSpecified);
-		// System.out.println("\nTest constructor: UrlValidator()");
-		// System.out.println(s);
-		Map<String, Boolean> checkMap = checkmapUrls(uv);
-		printMap(checkMap);
-//		checkUrls( new boolean[]{ true, false, false, false,
-//				true, false, false, false,
-//				true, false, false, false,
-//				false, false, false,
-//				false, false, false }
-//			, s, uv);
+		listResults.add(s + checkIsValidUrls(uv));
+		if (verbose) {
+			System.out.println("\nTest constructor: UrlValidator()");
+			System.out.println(s);
+			System.out.println(listResults.get(listResults.size()-1));
+		}
 	}
+	
 
-
-	@Test
-	public void URLValidatorOptionsConstructorTest() {
+	private void URLValidatorOptionsConstructorTest() {
 		for (int i=0; i<16; i++) {
-			UrlValidator uv = new UrlValidator((long) i);
+			UrlValidator uv = new UrlValidator(options[i]);
 			String s = printUrlValidatorInfo(defaultSchemes, (int) uv.getOptions(), regexNotSpecified);
-			// System.out.println("\nTest constructor: UrlValidator("+ printOptions(i) + ")");
-			// System.out.println(s);
-			Map<String, Boolean> checkMap = checkmapUrls(uv);
-			printMap(checkMap);
+			listResults.add(s + checkIsValidUrls(uv));
+			if (verbose) {
+				System.out.println("\nTest constructor: UrlValidator("+ printOptions((int) options[i]) + ")");
+				System.out.println(s);
+				System.out.println(listResults.get(listResults.size()-1));
+			}
 		}
-//		checkUrls( new boolean[]{ true, true, false, false,
-//				true, true, false, false,
-//				true, true, false, false,
-//				false, false, false,
-//				false, false, false }
-//			, "UrlValidator constructed with \"ALLOW_2_SLASHES\" ", uv);
 	}
+	
 
-	@Test
-	public void URLValidatorSchemesOptionsConstructorTest() {
+	private void URLValidatorSchemesOptionsConstructorTest() {
 		for (int i=0; i<16; i++) {
-			UrlValidator uv = new UrlValidator(schemes, (long) i);
+			UrlValidator uv = new UrlValidator(schemes, options[i]);
 			String s = printUrlValidatorInfo(schemes, (int) uv.getOptions(), regexNotSpecified);
-			// System.out.println("\nTest constructor: UrlValidator(" + printSchemes(schemes) + ", " + printOptions(i) + ")");
-			// System.out.println(s);
-			Map<String, Boolean> checkMap = checkmapUrls(uv);
-			printMap(checkMap);
+			listResults.add(s + checkIsValidUrls(uv));
+			if (verbose) {
+				System.out.println("\nTest constructor: UrlValidator(" + printSchemes(schemes) + ", " + printOptions((int) options[i]) + ")");
+				System.out.println(s);
+				System.out.println(listResults.get(listResults.size()-1));
+			}
 		}
-//		checkUrls( new boolean[]{ true, false, false, false,
-//				true, false, false, false,
-//				false, false, false, false,
-//				false, false, false,
-//				false, false, false }
-//			, s, uv);
 	}
+	
 
-	@Test
-	public void URLValidatorRegexOptionsConstructorTest() {
+	private void URLValidatorRegexOptionsConstructorTest() {
 		RegexValidator authorityValidator = new RegexValidator(regexStr);
 		for (int i=0; i<16; i++) {
-			UrlValidator uv = new UrlValidator(authorityValidator, (long) i);
+			UrlValidator uv = new UrlValidator(authorityValidator, options[i]);
 			String s = printUrlValidatorInfo(defaultSchemes, (int) uv.getOptions(), regexStr);
-			// System.out.println("\nTest constructor: UrlValidator(" + regexStr + ", " + printOptions(i) + ")");
-			// System.out.println(s);
-			Map<String, Boolean> checkMap = checkmapUrls(uv);
-			printMap(checkMap);
+			listResults.add(s + checkIsValidUrls(uv));
+			if (verbose) {
+				System.out.println("\nTest constructor: UrlValidator(" + regexStr + ", " + printOptions((int) options[i]) + ")");
+				System.out.println(s);
+				System.out.println(listResults.get(listResults.size()-1));
+			}
 		}
-//		checkUrls( new boolean[]{ true, false, false, false,
-//				true, false, false, false,
-//				true, false, false, false,
-//				true, false, false,
-//				true, false, false }
-//			, "UrlValidator constructed with authority validator: " + regexStr + " and \"ALLOW_LOCAL_URLS\"", uv);
 	}
+	
 
-	@Test
-	public void URLValidatorSchemesRegexOptionsConstructorTest() {
+	private void URLValidatorSchemesRegexOptionsConstructorTest() {
 		RegexValidator authorityValidator = new RegexValidator(regexStr);
 		for (int i=0; i<16; i++) {
-			UrlValidator uv = new UrlValidator(schemes, authorityValidator, (long) i);
+			UrlValidator uv = new UrlValidator(schemes, authorityValidator, options[i]);
 			String s = printUrlValidatorInfo(schemes, (int) uv.getOptions(), regexStr);
-			// System.out.println("\nTest constructor: UrlValidator(" + printSchemes(schemes) + ",  "+ regexStr + ", " + printOptions(i) + ")");
-			// System.out.println(s);
-			Map<String, Boolean> checkMap = checkmapUrls(uv);
-			printMap(checkMap);
+			listResults.add(s + checkIsValidUrls(uv));
+			if (verbose) {
+				System.out.println("\nTest constructor: UrlValidator(" + printSchemes(schemes) + ",  "+ regexStr + ", " + printOptions((int) options[i]) + ")");
+				System.out.println(s);
+				System.out.println(listResults.get(listResults.size()-1));
+			}
 		}
-//		checkUrls( new boolean[]{ true, false, false, false,
-//				true, false, false, false,
-//				true, false, false, false,
-//				true, false, false,
-//				true, false, false }
-//			, "UrlValidator constructed with authority validator: " + regexStr + " and \"ALLOW_LOCAL_URLS\"", uv);
 	}
+	
 
+	private void URLValidatorGetInstanceTest() {
+		UrlValidator uv = UrlValidator.getInstance();
+		String s = printUrlValidatorInfo(defaultSchemes, (int) uv.getOptions(), regexNotSpecified);
+		listResults.add(s + checkIsValidUrls(uv));
+		if (verbose) {
+			System.out.println("\nTest constructor: UrlValidator.getInstance()");
+			System.out.println(s);
+			System.out.println(listResults.get(listResults.size()-1));
+		}
+	}
+	
 	private String printSchemes(String[] arrSchemes) {
 		String str;
 		str = "{";
@@ -267,5 +375,5 @@ public class URLValidatorTest {
 		str = str + "}";
 		return str;
 	}
-
+	
 }
