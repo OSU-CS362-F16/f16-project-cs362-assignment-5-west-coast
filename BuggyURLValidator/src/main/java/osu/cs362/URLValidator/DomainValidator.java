@@ -134,9 +134,23 @@ public class DomainValidator implements Serializable {
      */
     public boolean isValid(String domain) {
         String[] groups = domainRegex.match(domain);
+
+        /*
+        System.out.println("+++++++++++++++++");
+        System.out.println(domain);
+        if (groups != null) {
+          System.out.println(groups.length);
+          for (int i = 0; i < groups.length; i++) {
+            System.out.println(groups[i].toString());
+          }
+        }
+        */
+
         if (groups != null && groups.length > 0) {
-            return isValidTld(groups[0]);
-        } else if(allowLocal) {
+            // BUG: The TLD is going to be in the last group matched
+            return isValidTld(groups[groups.length - 1]);
+            // BUG: The domain isn't going to be valid without at least one regex hit
+        } else if (groups != null && allowLocal) {
             if (!hostnameRegex.isValid(domain)) {
                return true;
             }
@@ -356,7 +370,185 @@ public class DomainValidator implements Serializable {
         "ir",                 // Iran
         "is",                 // Iceland
         "it",                 // Italy
-
+        // BUG: The list of valid country codes was truncated.
+        // It was really annoying so I added it back
+        "je",                 // Jersey
+        "jm",                 // Jamaica
+        "jo",                 // Jordan
+        "jp",                 // Japan
+        "ke",                 // Kenya
+        "kg",                 // Kyrgyzstan
+        "kh",                 // Cambodia (Khmer)
+        "ki",                 // Kiribati
+        "km",                 // Comoros
+        "kn",                 // Saint Kitts and Nevis
+        "kp",                 // North Korea
+        "kr",                 // South Korea
+        "kw",                 // Kuwait
+        "ky",                 // Cayman Islands
+        "kz",                 // Kazakhstan
+        "la",                 // Laos (currently being marketed as the official domain for Los Angeles)
+        "lb",                 // Lebanon
+        "lc",                 // Saint Lucia
+        "li",                 // Liechtenstein
+        "lk",                 // Sri Lanka
+        "lr",                 // Liberia
+        "ls",                 // Lesotho
+        "lt",                 // Lithuania
+        "lu",                 // Luxembourg
+        "lv",                 // Latvia
+        "ly",                 // Libya
+        "ma",                 // Morocco
+        "mc",                 // Monaco
+        "md",                 // Moldova
+        "me",                 // Montenegro
+        "mg",                 // Madagascar
+        "mh",                 // Marshall Islands
+        "mk",                 // Republic of Macedonia
+        "ml",                 // Mali
+        "mm",                 // Myanmar
+        "mn",                 // Mongolia
+        "mo",                 // Macau
+        "mp",                 // Northern Mariana Islands
+        "mq",                 // Martinique
+        "mr",                 // Mauritania
+        "ms",                 // Montserrat
+        "mt",                 // Malta
+        "mu",                 // Mauritius
+        "mv",                 // Maldives
+        "mw",                 // Malawi
+        "mx",                 // Mexico
+        "my",                 // Malaysia
+        "mz",                 // Mozambique
+        "na",                 // Namibia
+        "nc",                 // New Caledonia
+        "ne",                 // Niger
+        "nf",                 // Norfolk Island
+        "ng",                 // Nigeria
+        "ni",                 // Nicaragua
+        "nl",                 // Netherlands
+        "no",                 // Norway
+        "np",                 // Nepal
+        "nr",                 // Nauru
+        "nu",                 // Niue
+        "nz",                 // New Zealand
+        "om",                 // Oman
+        "pa",                 // Panama
+        "pe",                 // Peru
+        "pf",                 // French Polynesia With Clipperton Island
+        "pg",                 // Papua New Guinea
+        "ph",                 // Philippines
+        "pk",                 // Pakistan
+        "pl",                 // Poland
+        "pm",                 // Saint-Pierre and Miquelon
+        "pn",                 // Pitcairn Islands
+        "pr",                 // Puerto Rico
+        "ps",                 // Palestinian territories (PA-controlled West Bank and Gaza Strip)
+        "pt",                 // Portugal
+        "pw",                 // Palau
+        "py",                 // Paraguay
+        "qa",                 // Qatar
+        "re",                 // Réunion
+        "ro",                 // Romania
+        "rs",                 // Serbia
+        "ru",                 // Russia
+        "rw",                 // Rwanda
+        "sa",                 // Saudi Arabia
+        "sb",                 // Solomon Islands
+        "sc",                 // Seychelles
+        "sd",                 // Sudan
+        "se",                 // Sweden
+        "sg",                 // Singapore
+        "sh",                 // Saint Helena
+        "si",                 // Slovenia
+        "sj",                 // Svalbard and Jan Mayen Islands Not in use (Norwegian dependencies; see .no)
+        "sk",                 // Slovakia
+        "sl",                 // Sierra Leone
+        "sm",                 // San Marino
+        "sn",                 // Senegal
+        "so",                 // Somalia
+        "sr",                 // Suriname
+        "st",                 // São Tomé and Príncipe
+        "su",                 // Soviet Union (deprecated)
+        "sv",                 // El Salvador
+        "sx",                 // Sint Maarten
+        "sy",                 // Syria
+        "sz",                 // Swaziland
+        "tc",                 // Turks and Caicos Islands
+        "td",                 // Chad
+        "tf",                 // French Southern and Antarctic Lands
+        "tg",                 // Togo
+        "th",                 // Thailand
+        "tj",                 // Tajikistan
+        "tk",                 // Tokelau
+        "tl",                 // East Timor (deprecated old code)
+        "tm",                 // Turkmenistan
+        "tn",                 // Tunisia
+        "to",                 // Tonga
+        "tp",                 // East Timor
+        "tr",                 // Turkey
+        "tt",                 // Trinidad and Tobago
+        "tv",                 // Tuvalu
+        "tw",                 // Taiwan, Republic of China
+        "tz",                 // Tanzania
+        "ua",                 // Ukraine
+        "ug",                 // Uganda
+        "uk",                 // United Kingdom
+        "us",                 // United States of America
+        "uy",                 // Uruguay
+        "uz",                 // Uzbekistan
+        "va",                 // Vatican City State
+        "vc",                 // Saint Vincent and the Grenadines
+        "ve",                 // Venezuela
+        "vg",                 // British Virgin Islands
+        "vi",                 // U.S. Virgin Islands
+        "vn",                 // Vietnam
+        "vu",                 // Vanuatu
+        "wf",                 // Wallis and Futuna
+        "ws",                 // Samoa (formerly Western Samoa)
+        "xn--3e0b707e", // 한국 KISA (Korea Internet &amp; Security Agency)
+        "xn--45brj9c", // ভারত National Internet Exchange of India
+        "xn--80ao21a", // қаз Association of IT Companies of Kazakhstan
+        "xn--90a3ac", // срб Serbian National Internet Domain Registry (RNIDS)
+        "xn--clchc0ea0b2g2a9gcd", // சிங்கப்பூர் Singapore Network Information Centre (SGNIC) Pte Ltd
+        "xn--d1alf", // мкд Macedonian Academic Research Network Skopje
+        "xn--fiqs8s", // 中国 China Internet Network Information Center
+        "xn--fiqz9s", // 中國 China Internet Network Information Center
+        "xn--fpcrj9c3d", // భారత్ National Internet Exchange of India
+        "xn--fzc2c9e2c", // ලංකා LK Domain Registry
+        "xn--gecrj9c", // ભારત National Internet Exchange of India
+        "xn--h2brj9c", // भारत National Internet Exchange of India
+        "xn--j1amh", // укр Ukrainian Network Information Centre (UANIC), Inc.
+        "xn--j6w193g", // 香港 Hong Kong Internet Registration Corporation Ltd.
+        "xn--kprw13d", // 台湾 Taiwan Network Information Center (TWNIC)
+        "xn--kpry57d", // 台灣 Taiwan Network Information Center (TWNIC)
+        "xn--l1acc", // мон Datacom Co.,Ltd
+        "xn--lgbbat1ad8j", // الجزائر CERIST
+        "xn--mgb9awbf", // عمان Telecommunications Regulatory Authority (TRA)
+        "xn--mgba3a4f16a", // ایران Institute for Research in Fundamental Sciences (IPM)
+        "xn--mgbaam7a8h", // امارات Telecommunications Regulatory Authority (TRA)
+        "xn--mgbayh7gpa", // الاردن National Information Technology Center (NITC)
+        "xn--mgbbh1a71e", // بھارت National Internet Exchange of India
+        "xn--mgbc0a9azcg", // المغرب Agence Nationale de Réglementation des Télécommunications (ANRT)
+        "xn--mgberp4a5d4ar", // السعودية Communications and Information Technology Commission
+        "xn--mgbx4cd0ab", // مليسيا MYNIC Berhad
+        "xn--node", // გე Information Technologies Development Center (ITDC)
+        "xn--o3cw4h", // ไทย Thai Network Information Center Foundation
+        "xn--ogbpf8fl", // سورية National Agency for Network Services (NANS)
+        "xn--p1ai", // рф Coordination Center for TLD RU
+        "xn--pgbs0dh", // تونس Agence Tunisienne d&#39;Internet
+        "xn--s9brj9c", // ਭਾਰਤ National Internet Exchange of India
+        "xn--wgbh1c", // مصر National Telecommunication Regulatory Authority - NTRA
+        "xn--wgbl6a", // قطر Communications Regulatory Authority
+        "xn--xkc2al3hye2a", // இலங்கை LK Domain Registry
+        "xn--xkc2dl3a5ee0h", // இந்தியா National Internet Exchange of India
+        "xn--yfro4i67o", // 新加坡 Singapore Network Information Centre (SGNIC) Pte Ltd
+        "xn--ygbi2ammx", // فلسطين Ministry of Telecom &amp; Information Technology (MTIT)
+        "ye",                 // Yemen
+        "yt",                 // Mayotte
+        "za",                 // South Africa
+        "zm",                 // Zambia
+        "zw",                 // Zimbabwe
     };
 
     private static final String[] LOCAL_TLDS = new String[] {
