@@ -31,18 +31,14 @@ public class TestDomainValidator  {
 
     // Trivial
     assertTrue("google.com", dv.isValid("google.com"));
-
-    // BUG: Only ascii numbers, dashes and numbers are allowed
-    // assertFalse("go_ogle.com", dv.isValid("go_ogle.com"));
+    assertFalse("go_ogle.com", dv.isValid("go_ogle.com"));
 
     // Domains can start with numbers per RFC
     assertTrue("1google.com", dv.isValid("1google.com"));
 
     // Special Characters at the start of the URL
-    // assertFalse("$google.com", dv.isValid("$google.com"));
-
-    assertTrue(".co.uk", dv.isValid(".co.uk"));
-    assertTrue(".com", dv.isValid(".com"));
+    assertFalse("$google.com", dv.isValid("$google.com"));
+    assertTrue("co.br", dv.isValid("co.br"));
 
     // Per RFC 1123: A 255 character hostname should be valid
     assertTrue("255 Character Hostname", dv.isValid("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"));
@@ -52,32 +48,28 @@ public class TestDomainValidator  {
     // assertFalse("256 Character Hostname", dv.isValid("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"));
 
     // It's only a TLD if it's at the end of the string
-    // assertTrue("host.org.com.gov.co.uk", dv.isValid("host.org.com.gov.co.uk"));
-
+    assertTrue("host.org.com.gov.co.br", dv.isValid("host.org.com.gov.co.br"));
     // assertTrue("google.com.uk", dv.isValid("google.com.uk"));
 
     // Domains that start and end with numbers
     assertTrue("482ksafj239r8.edu",dv.isValid("482ksafj239r8.edu"));
-
     assertTrue("bloopsadfo32397ohwifljshld.com", dv.isValid("bloopsadfo32397ohwifljshld.com"));
-
-    // BUG: These should be valid when constructed with allowLocal = true
     assertTrue("localhost.localdomain (with local allowed)", dv.isValid("localhost.localdomain"));
 
-    // Unicode (From: https://www.name.com/idn)
-    assertTrue("名がドメイン.com", dv.isValid("名がドメイン.com"));
-    
+    // BUG: Unicode -- Only ASCII is allowed in URLs, and I don't think we're validating IRIs here
+    // assertTrue("名がドメイン.com", dv.isValid("名がドメイン.com"));
+
     // Punycode
     assertTrue("xn--v8jxj3d1dzdz08w.com", dv.isValid("xn--v8jxj3d1dzdz08w.com"));
 
-    // RFC 2181: The zero length full name is defined as representing the root of
+    assertFalse("Empty String", dv.isValid(""));
+
+    // BUG: RFC 2181: The zero length full name is defined as representing the root of
     // the DNS tree, and is typically written and displayed as ".
-    assertTrue("Empty String", dv.isValid(""));
-    assertTrue(".", dv.isValid("."));
+    // assertTrue(".", dv.isValid("."));
 
     // Gibberish with Special Characters
-    // assertFalse("$#(*@73598237t468937133>.&#9857)", dv.isValid("$#(*@73598237t468937133>.&#9857)"));
-
+    assertFalse("$#(*@73598237t468937133>.&#9857)", dv.isValid("$#(*@73598237t468937133>.&#9857)"));
   }
 
   @Test
@@ -97,14 +89,16 @@ public class TestDomainValidator  {
     // Infrastructure
     assertTrue("arpa", dv.isValidTld("arpa"));
     // Invalid
-    // assertFalse("12345", dv.isValidTld("12345"));
+    assertFalse("12345", dv.isValidTld("12345"));
+
     // Double Leading dot
-    // assertFalse("..com", dv.isValidTld("..com"));
+    assertFalse("..com", dv.isValidTld("..com"));
 
     // Special Characters
-    // assertFalse("/d&4362!}{}';327!@#$%^&*()'", dv.isValidTld("/d&4362!}{}';327!@#$%^&*()'"));
+    assertFalse("/d&4362!}{}';327!@#$%^&*()'", dv.isValidTld("/d&4362!}{}';327!@#$%^&*()'"));
+
     // null
-    //assertFalse("Empty String", dv.isValidTld(""));
+    assertFalse("Empty String", dv.isValidTld(""));
   }
 
   @Test
@@ -130,14 +124,16 @@ public class TestDomainValidator  {
     assertTrue("arpa", dv.isValidTld("arpa"));
 
     // Invalid
-    // assertFalse("12345", dv.isValidTld("12345"));
+    assertFalse("12345", dv.isValidTld("12345"));
+
     // Double Leading dot
-    // assertFalse("..com", dv.isValidTld("..com"));
+    assertFalse("..com", dv.isValidTld("..com"));
 
     // Special Characters
-    // assertFalse("/d&4362!}{}';327!@#$%^&*()'", dv.isValidTld("/d&4362!}{}';327!@#$%^&*()'"));
+    assertFalse("/d&4362!}{}';327!@#$%^&*()'", dv.isValidTld("/d&4362!}{}';327!@#$%^&*()'"));
+
     // null
-    //assertFalse("Empty String", dv.isValidTld(""));
+    assertFalse("Empty String", dv.isValidTld(""));
   }
 
   @Test
