@@ -20,14 +20,25 @@ import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 public class URLValidatorTest {
 	private List<String> listResults = new ArrayList<String>();
 	private int testCaseIndex = 0;
 	private boolean verbose = false;
+	private List<String> testStrings = new ArrayList<String>();
 
 	// list of test strings
 	static String[] arrayUrls
 	= {
+			// examples from rfc2396
+			"http://www.ietf.org/rfc/rfc2396.txt",
+			"http://www.w3.org/Addressing/",
+			"ftp://ds.iternic.net/rfc/",
+			"http://www.ics.uci.edu/pub/ietf/uri/historical.html#WARNING",
+			
 	"http:/foo.bar.com/",  // valid http URL
 	"http://foo//foo.bar.com//",  // ALLOW_2_SLASHES
 	"http//foo.bar.com/",  // invalid
@@ -100,6 +111,28 @@ public class URLValidatorTest {
 			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,
 	};
 	
+	// list of the option states corresponding to index
+	private String[] strOptions = {
+		// represented in this order:
+		// ALLOW_LOCAL_URLS + NO_FRAGMENTS + ALLOW_2_SLASHES + ALLOW_ALL_SCHEMES
+		"OFF,OFF,OFF,OFF",
+		"OFF,OFF,OFF,ON",
+		"OFF,OFF,ON,OFF",
+		"OFF,OFF,ON,ON",
+		"OFF,ON,OFF,OFF",
+		"ON,OFF,ON,OFF",
+		"OFF,ON,ON,OFF",
+		"OFF,ON,ON,ON",
+		"ON,OFF,OFF,OFF",
+		"ON,OFF,OFF,ON",
+		"ON,OFF,ON,OFF",
+		"ON,OFF,ON,ON",
+		"ON,ON,OFF,ON",
+		"ON,ON,OFF,ON",
+		"ON,ON,ON,OFF",
+		"ON,ON,ON,ON"					 
+		};
+	
 	@Test 
 	public void UrlValidatorAllTest() {
 		printArrayUrlsTitle();
@@ -114,33 +147,8 @@ public class URLValidatorTest {
 	}
 	
 	@Test
-	public void IsValidAuthorityTest() {
-		UrlValidatorExtension uv = new UrlValidatorExtension();
-		assertEquals("null input to isValidAuthority returns true",false,uv.isValidAuthority(null));
-		assertEquals("authorityMatcher should not match but returns true",false,uv.isValidAuthority(""));
-		
-	}
-
-	@Test
-	public void IsValidPathTest() {
-		UrlValidatorExtension uv = new UrlValidatorExtension();
-		assertEquals("null input to isValidPath returns true",false,uv.isValidPath(null));
-		assertEquals("path should not match but returns true",false,uv.isValidPath(""));
-	}
-	
-	@Test
-	public void IsValidQuery() {
-		UrlValidatorExtension uv = new UrlValidatorExtension();
-		assertEquals("null input to isValidQuery returns false",true,uv.isValidQuery(null));
-		assertEquals("query should not match but returns true",false,uv.isValidQuery(""));
-	}
-	
-	@Test
-	public void IsValidFragment() {
-		UrlValidatorExtension uv = new UrlValidatorExtension(UrlValidator.NO_FRAGMENTS);
-		assertEquals("NO_FRAGMENTS is set", false, uv.isValidFragment("foo.com"));
-		assertEquals("null input to isValidFragment returns false",true,uv.isValidFragment(null));
-		assertEquals("fragment should not match but returns true",false,uv.isValidFragment(""));
+	public void IsValidRfc2396Test() {
+		readStrings("TestData/rfc2396URI.txt");
 	}
 	
 	
@@ -149,7 +157,7 @@ public class URLValidatorTest {
 		try {
 			PrintWriter urlWriter = new PrintWriter("./target/results.csv", "UTF-8");
 			try {
-				urlWriter.print("testcase,scheme,option,regex");
+				urlWriter.print("testcase,scheme,ALLOW_LOCAL_URLS,NO_FRAGMENTS,ALLOW_2_SLASHES,ALLOW_ALL_SCHEMES,regex");
 				for (int k=0; k<arrayUrls.length; k++){
 					if (arrayUrls[k] == "") {
 						urlWriter.print(",\"\"");
@@ -192,6 +200,42 @@ public class URLValidatorTest {
 	}
 	
 	
+	// read in a list of test strings
+	//reference: www.mkyong.com/how-to-read-file-from-java-bufferedreader-example/
+	public void readStrings(String filename) {
+		BufferedReader br = null;
+		testStrings.clear();
+		try {
+			String sCurrentLine;
+			
+			br = new BufferedReader(new FileReader(filename));
+			if (verbose) {
+				System.out.println("\nList of URLs to test from \"" + filename + "\"");
+			}
+			while ((sCurrentLine = br.readLine()) != null) {
+				testStrings.add(sCurrentLine);
+				if (verbose) {
+					System.out.println(sCurrentLine);
+				}
+			}
+		}
+		catch (IOException e) {
+			System.out.println("file read failed: Message: " + e.getMessage() + " Localized: " + e.getLocalizedMessage());
+			System.out.println("");			
+		}
+		finally {
+			try {
+				if (br != null)br.close();
+			}
+			catch (IOException ee) {
+				System.out.println("read file close failed: Message: " + ee.getMessage() + " Localized: " + ee.getLocalizedMessage());
+				System.out.println("");			
+			}
+		}
+	}
+	
+	
+	
 // add checks later
 //	private void checkUrls(boolean[] chkStates, String assertStr, UrlValidator uv) {
 //		for (int i = 0; i < arrayUrls.length; i++) {
@@ -227,46 +271,6 @@ public class URLValidatorTest {
 			System.out.println(s);
 		}
 		return s;
-	}
-		
-
-	// print the options
-	private String printOptions(Integer val){
-		switch (val) {
-		case 0:
-			return new String("NONE");
-		case 1:
-			return new String("ALLOW_ALL_SCHEMES");
-		case 2:
-			return new String("ALLOW_2_SLASHES");
-		case 3: 
-			return new String("ALLOW_ALL_SCHEMES + ALLOW_2_SLASHES");
-		case 4:
-			return new String("NO_FRAGMENTS");
-		case 5:
-			return new String("NO_FRAGMENTS + ALLOW_ALL_SCHEMES");
-		case 6:
-			return new String("NO_FRAGMENTS + ALLOW_2_SLASHES");
-		case 7:
-			return new String("NO_FRAGMENTS + ALLOW_2_SLASHES + ALLOW_ALL_SCHEMES");
-		case 8:
-			return new String("ALLOW_LOCAL_URLS");
-		case 9:
-			return new String("ALLOW_LOCAL_URLS + ALLOW_ALL_SCHEMES");
-		case 10:
-			return new String("ALLOW_LOCAL_URLS + ALLOW_2_SLASHES");
-		case 11:
-			return new String("ALLOW_LOCAL_URLS + ALLOW_2_SLASHES + ALLOW_ALL_SCHEMES");
-		case 12:
-			return new String("ALLOW_LOCAL_URLS + NO_FRAGMENTS");
-		case 13:
-			return new String("ALLOW_LOCAL_URLS + NO_FRAGMENTS + ALLOW_ALL_SCHEMES");
-		case 14:
-			return new String("ALLOW_LOCAL_URLS + NO_FRAGMENTS + ALLOW_2_SLASHES");
-		case 15:
-			return new String("ALLOW_LOCAL_URLS + NO_FRAGMENTS + ALLOW_2_SLASHES + ALLOW_ALL_SCHEMES");					 
-		}
-		return new String("Unexpected combination of options with value: " + val);
 	}
 	
 	private String printUrlValidatorInfo(String[] schemes, Integer options, String regex) {
@@ -364,6 +368,14 @@ public class URLValidatorTest {
 			System.out.println(s);
 			System.out.println(listResults.get(listResults.size()-1));
 		}
+	}
+	
+	// if options are in range, print correct combination, else print error message
+	private String printOptions(long options) {
+		if (((int) options >= 0) || ( (int) options < 16 ) )
+			return(strOptions[(int) options]);
+		System.out.println("Option value not in valid range: " + (int) options);
+		return("ERR,ERR,ERR,ERR");
 	}
 	
 	private String printSchemes(String[] arrSchemes) {
