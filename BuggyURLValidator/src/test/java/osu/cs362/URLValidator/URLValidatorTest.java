@@ -89,7 +89,7 @@ public class URLValidatorTest {
 	
 	// regex option
 	static String regexStr = "[a-z]";
-	static String regexNotSpecified = "not specified in constructor ";
+	static String regexNotSpecified = "DEFAULT";
 	
 	// options
 	private long[] options = {
@@ -120,14 +120,14 @@ public class URLValidatorTest {
 		"OFF,OFF,ON,OFF",
 		"OFF,OFF,ON,ON",
 		"OFF,ON,OFF,OFF",
-		"ON,OFF,ON,OFF",
+		"OFF,ON,OFF,ON",
 		"OFF,ON,ON,OFF",
 		"OFF,ON,ON,ON",
 		"ON,OFF,OFF,OFF",
 		"ON,OFF,OFF,ON",
 		"ON,OFF,ON,OFF",
 		"ON,OFF,ON,ON",
-		"ON,ON,OFF,ON",
+		"ON,ON,OFF,OFF",
 		"ON,ON,OFF,ON",
 		"ON,ON,ON,OFF",
 		"ON,ON,ON,ON"					 
@@ -135,38 +135,56 @@ public class URLValidatorTest {
 	
 	@Test 
 	public void UrlValidatorAllTest() {
-		printArrayUrlsTitle();
-		URLValidatorSchemesConstructor();
-		URLValidatorConstructorTest();
-		URLValidatorOptionsConstructorTest();
-		URLValidatorSchemesOptionsConstructorTest();
-		URLValidatorRegexOptionsConstructorTest();
-		URLValidatorSchemesRegexOptionsConstructorTest();
-		URLValidatorGetInstanceTest();
-		printResults();
+		testStrings.clear();
+		for (int i=0; i<arrayUrls.length; i++) {
+			testStrings.add(arrayUrls[i]);
+		}
+		printArrayUrlsTitle("./target/results.csv", true);
+		URLValidatorSchemesConstructor(testStrings);
+		URLValidatorConstructorTest(testStrings);
+		URLValidatorOptionsConstructorTest(testStrings);
+		URLValidatorSchemesOptionsConstructorTest(testStrings);
+		URLValidatorRegexOptionsConstructorTest(testStrings);
+		URLValidatorSchemesRegexOptionsConstructorTest(testStrings);
+		URLValidatorGetInstanceTest(testStrings);
+		printResults("./target/results.csv");
 	}
 	
 	@Test
 	public void IsValidRfc2396Test() {
-		readStrings("TestData/rfc2396URI.txt");
+		listResults.clear();
+		readStrings("TestData/rfc2396URI.txt"); // reads file into testStrings 
+		printArrayUrlsTitle("./target/rfc2396URIResults.csv", false);
+		UrlValidator uv = new UrlValidator(schemes);
+		String s = printUrlValidatorInfo(schemes, (int) uv.getOptions(), regexNotSpecified);
+		listResults.add(s + checkIsValidUrls(uv, testStrings));
+		if (verbose) {
+			System.out.println("\nTest constructor: UrlValidator(" + printSchemes(schemes) + ")");
+			System.out.println(s);
+			System.out.println(listResults.get(listResults.size()-1));
+		}
+		printResults("./target/rfc2396URIResults.csv");
 	}
 	
 	
 	// Print Titles and results from the UrlValidatorAllTest
-	public void printArrayUrlsTitle() {
+	public void printArrayUrlsTitle(String resultsFileName, boolean includeNull) {
 		try {
-			PrintWriter urlWriter = new PrintWriter("./target/results.csv", "UTF-8");
+			PrintWriter urlWriter = new PrintWriter(resultsFileName, "UTF-8");
 			try {
 				urlWriter.print("testcase,scheme,ALLOW_LOCAL_URLS,NO_FRAGMENTS,ALLOW_2_SLASHES,ALLOW_ALL_SCHEMES,regex");
-				for (int k=0; k<arrayUrls.length; k++){
-					if (arrayUrls[k] == "") {
+				for (int k=0; k<testStrings.size(); k++){
+					if (testStrings.get(k) == "") {
 						urlWriter.print(",\"\"");
 					}
 					else {
-						urlWriter.print("," + arrayUrls[k] );
+						urlWriter.print("," + testStrings.get(k));
 					}
 				}
-				urlWriter.println(",null,");
+				if (includeNull)
+					urlWriter.println(",null,");
+				else
+					urlWriter.println("");
 			} 
 			catch (Exception e) {
 				System.out.println("couldn't write results file titles: Message: " + e.getMessage() + " Localized: " + e.getLocalizedMessage());
@@ -180,9 +198,9 @@ public class URLValidatorTest {
 	}
 	
 	
-	public void printResults() {
+	public void printResults(String resultsFileName) {
 		try {
-			FileWriter fw = new FileWriter("./target/results.csv", true);
+			FileWriter fw = new FileWriter(resultsFileName, true);
 			PrintWriter writer = new PrintWriter(new BufferedWriter(fw));
 			try {
 				for(int i=0; i<listResults.size(); i++) {
@@ -245,15 +263,24 @@ public class URLValidatorTest {
 	
 	
 	// check isValid result for each string, save results to print
-	private String checkIsValidUrls(UrlValidator uv) {
+	private String checkIsValidUrls(UrlValidator uv, List<String> urls) {
 		String s = new String();
-		for (int i = 0; i < arrayUrls.length; i++) {
-			Boolean result = uv.isValid(arrayUrls[i]);
+		for (int i = 0; i < urls.size(); i++) {
+			Boolean result = uv.isValid(urls.get(i));
 			s = s + "," + result.toString();
 			if (verbose) {
-				System.out.println("\"" + arrayUrls[i] + "\"" + "  :  " + result.toString());
+				System.out.println("\"" + urls.get(i) + "\"" + "  :  " + result.toString());
 			}
 		}
+		if (verbose) {
+			System.out.println(s);
+		}
+		return s;
+	}
+
+	// check isValid result for each string, save results to print
+	private String checkIsValidNullUrls(UrlValidator uv) {
+		String s = new String();
 		try {
 			Boolean result = uv.isValid(null);
 			s = s + "," + result.toString();
@@ -278,10 +305,10 @@ public class URLValidatorTest {
 		 	+ "," + printOptions(options) + "," + regex);
 	}
 	
-	private void URLValidatorSchemesConstructor() {
+	private void URLValidatorSchemesConstructor(List<String> urls) {
 		UrlValidator uv = new UrlValidator(schemes);
 		String s = printUrlValidatorInfo(schemes, (int) uv.getOptions(), regexNotSpecified);
-		listResults.add(s + checkIsValidUrls(uv));
+		listResults.add(s + checkIsValidUrls(uv, urls) + checkIsValidNullUrls(uv));
 		if (verbose) {
 			System.out.println("\nTest constructor: UrlValidator(" + printSchemes(schemes) + ")");
 			System.out.println(s);
@@ -289,10 +316,10 @@ public class URLValidatorTest {
 		}
 	}
 	
-	private void URLValidatorConstructorTest() {
+	private void URLValidatorConstructorTest(List<String> urls) {
 		UrlValidator uv = new UrlValidator();
 		String s = printUrlValidatorInfo(defaultSchemes, (int) uv.getOptions(), regexNotSpecified);
-		listResults.add(s + checkIsValidUrls(uv));
+		listResults.add(s + checkIsValidUrls(uv, urls) + checkIsValidNullUrls(uv));
 		if (verbose) {
 			System.out.println("\nTest constructor: UrlValidator()");
 			System.out.println(s);
@@ -301,11 +328,11 @@ public class URLValidatorTest {
 	}
 	
 
-	private void URLValidatorOptionsConstructorTest() {
+	private void URLValidatorOptionsConstructorTest(List<String> urls) {
 		for (int i=0; i<16; i++) {
 			UrlValidator uv = new UrlValidator(options[i]);
 			String s = printUrlValidatorInfo(defaultSchemes, (int) uv.getOptions(), regexNotSpecified);
-			listResults.add(s + checkIsValidUrls(uv));
+			listResults.add(s + checkIsValidUrls(uv, urls) + checkIsValidNullUrls(uv));
 			if (verbose) {
 				System.out.println("\nTest constructor: UrlValidator("+ printOptions((int) options[i]) + ")");
 				System.out.println(s);
@@ -315,11 +342,11 @@ public class URLValidatorTest {
 	}
 	
 
-	private void URLValidatorSchemesOptionsConstructorTest() {
+	private void URLValidatorSchemesOptionsConstructorTest(List<String> urls) {
 		for (int i=0; i<16; i++) {
 			UrlValidator uv = new UrlValidator(schemes, options[i]);
 			String s = printUrlValidatorInfo(schemes, (int) uv.getOptions(), regexNotSpecified);
-			listResults.add(s + checkIsValidUrls(uv));
+			listResults.add(s + checkIsValidUrls(uv, urls) + checkIsValidNullUrls(uv));
 			if (verbose) {
 				System.out.println("\nTest constructor: UrlValidator(" + printSchemes(schemes) + ", " + printOptions((int) options[i]) + ")");
 				System.out.println(s);
@@ -329,12 +356,12 @@ public class URLValidatorTest {
 	}
 	
 
-	private void URLValidatorRegexOptionsConstructorTest() {
+	private void URLValidatorRegexOptionsConstructorTest(List<String> urls) {
 		RegexValidator authorityValidator = new RegexValidator(regexStr);
 		for (int i=0; i<16; i++) {
 			UrlValidator uv = new UrlValidator(authorityValidator, options[i]);
 			String s = printUrlValidatorInfo(defaultSchemes, (int) uv.getOptions(), regexStr);
-			listResults.add(s + checkIsValidUrls(uv));
+			listResults.add(s + checkIsValidUrls(uv, urls) + checkIsValidNullUrls(uv));
 			if (verbose) {
 				System.out.println("\nTest constructor: UrlValidator(" + regexStr + ", " + printOptions((int) options[i]) + ")");
 				System.out.println(s);
@@ -344,12 +371,12 @@ public class URLValidatorTest {
 	}
 	
 
-	private void URLValidatorSchemesRegexOptionsConstructorTest() {
+	private void URLValidatorSchemesRegexOptionsConstructorTest(List<String> urls) {
 		RegexValidator authorityValidator = new RegexValidator(regexStr);
 		for (int i=0; i<16; i++) {
 			UrlValidator uv = new UrlValidator(schemes, authorityValidator, options[i]);
 			String s = printUrlValidatorInfo(schemes, (int) uv.getOptions(), regexStr);
-			listResults.add(s + checkIsValidUrls(uv));
+			listResults.add(s + checkIsValidUrls(uv, urls) + checkIsValidNullUrls(uv));
 			if (verbose) {
 				System.out.println("\nTest constructor: UrlValidator(" + printSchemes(schemes) + ",  "+ regexStr + ", " + printOptions((int) options[i]) + ")");
 				System.out.println(s);
@@ -359,10 +386,10 @@ public class URLValidatorTest {
 	}
 	
 
-	private void URLValidatorGetInstanceTest() {
+	private void URLValidatorGetInstanceTest(List<String> urls) {
 		UrlValidator uv = UrlValidator.getInstance();
 		String s = printUrlValidatorInfo(defaultSchemes, (int) uv.getOptions(), regexNotSpecified);
-		listResults.add(s + checkIsValidUrls(uv));
+		listResults.add(s + checkIsValidUrls(uv, urls) + checkIsValidNullUrls(uv));
 		if (verbose) {
 			System.out.println("\nTest constructor: UrlValidator.getInstance()");
 			System.out.println(s);

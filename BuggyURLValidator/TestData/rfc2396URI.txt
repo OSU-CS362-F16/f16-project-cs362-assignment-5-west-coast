@@ -1,0 +1,4 @@
+http://www.ietf.org/rfc/rfc2396.txt
+http://www.w3.org/Addressing/
+ftp://ds.iternic.net/rfc/
+http://www.ics.uci.edu/pub/ietf/uri/historical.html#WARNING
