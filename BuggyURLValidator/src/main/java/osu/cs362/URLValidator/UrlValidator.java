@@ -149,9 +149,9 @@ public class UrlValidator implements Serializable {
 
     private static final String PATH_REGEX = "^(/[-\\w:@&?=+,.!/~*'%$_;\\(\\)]*)?$";
     private static final Pattern PATH_PATTERN = Pattern.compile(PATH_REGEX);
-    
+
     private static final String QUERY_REGEX = "^(.*)$";
-    
+
     private static final Pattern QUERY_PATTERN = Pattern.compile(QUERY_REGEX);
 
     private static final String LEGAL_ASCII_REGEX = "^\\p{ASCII}+$";
@@ -164,7 +164,7 @@ public class UrlValidator implements Serializable {
      * Holds the set of current validation options.
      */
     private final long options;
-    
+
     // For debug, return the current options
     public long getOptions() {
     	return(options);
@@ -323,9 +323,9 @@ public class UrlValidator implements Serializable {
         }
 
         if (!isValidFragment(urlMatcher.group(PARSE_URL_FRAGMENT))) {
-            
+
         	return false;
-        	
+
         }
 
         return true;
@@ -449,8 +449,9 @@ public class UrlValidator implements Serializable {
         if (query == null) {
             return true;
         }
-        
-        return !QUERY_PATTERN.matcher(query).matches();
+
+        // BUG: Output of isValidQuery was inverted
+        return QUERY_PATTERN.matcher(query).matches();
     }
 
     /**
