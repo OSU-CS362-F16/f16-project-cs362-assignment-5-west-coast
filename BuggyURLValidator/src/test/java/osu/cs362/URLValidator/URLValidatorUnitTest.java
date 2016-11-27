@@ -11,28 +11,12 @@ import org.jaxen.function.StringFunction;
 // stackoverflow.com/questions
 
 
-import org.junit.Before;
-import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.*;
-import java.io.PrintWriter;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 public class URLValidatorUnitTest {
 	private boolean verbose = true;
-
-	// list of test strings
-//			// examples from rfc2396
-//			"http://www.ietf.org/rfc/rfc2396.txt",
-//			"http://www.w3.org/Addressing/",
-//			"ftp://ds.iternic.net/rfc/",
-//			"http://www.ics.uci.edu/pub/ietf/uri/historical.html#WARNING",
 
 	// schemes
 	static String[] defaultSchemes = {"http", "https", "ftp" }; 
@@ -41,49 +25,6 @@ public class URLValidatorUnitTest {
 	// regex option
 	static String regexStr = "[a-z]";
 	static String regexNotSpecified = "not specified in constructor ";
-	
-	// options
-	private long[] options = {
-			0,
-			UrlValidator.ALLOW_ALL_SCHEMES,
-			UrlValidator.ALLOW_2_SLASHES,
-			UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,			
-			UrlValidator.NO_FRAGMENTS,
-			UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES,
-			UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_2_SLASHES,
-			UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,
-			UrlValidator.ALLOW_LOCAL_URLS,
-			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_ALL_SCHEMES,
-			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_2_SLASHES,
-			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,			
-			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS,
-			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES,
-			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_2_SLASHES,
-			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,
-	};
-	
-	// list of the option states corresponding to index
-	private String[] strOptions = {
-		// represented in this order:
-		// ALLOW_LOCAL_URLS + NO_FRAGMENTS + ALLOW_2_SLASHES + ALLOW_ALL_SCHEMES
-		"OFF,OFF,OFF,OFF",
-		"OFF,OFF,OFF,ON",
-		"OFF,OFF,ON,OFF",
-		"OFF,OFF,ON,ON",
-		"OFF,ON,OFF,OFF",
-		"ON,OFF,ON,OFF",
-		"OFF,ON,ON,OFF",
-		"OFF,ON,ON,ON",
-		"ON,OFF,OFF,OFF",
-		"ON,OFF,OFF,ON",
-		"ON,OFF,ON,OFF",
-		"ON,OFF,ON,ON",
-		"ON,ON,OFF,ON",
-		"ON,ON,OFF,ON",
-		"ON,ON,ON,OFF",
-		"ON,ON,ON,ON"					 
-		};
-	
 	
 	@Test
 	public void IsValidComponentsTest() {
