@@ -24,4 +24,76 @@ public class TestRegexValidator  {
     assertFalse(rv2.isValid("bloop"));
 
   }
+  
+  static String[] regexList = {
+		"^[a-z]{1,10}$",
+		"I lost my \\w+",
+		"^[a-z0-9_-]{3,15}$",
+		"^[0-9]{1,10}$"
+	};
+	
+	static String[] regexListNull = {
+		"\n",
+		"",
+		"",
+		""
+	};
+	
+	static String[] regexNull = null;
+		
+	@Test
+	public void testIsValid() {
+		boolean fail = false;
+		RegexValidator reggie = new RegexValidator("I lost my \\w+");
+		RegexValidator reggieCase = new RegexValidator("I lost my \\w+", false);
+		RegexValidator reggies = new RegexValidator(regexList);
+		RegexValidator reggiesCase = new RegexValidator(regexList, false);
+		try {
+			RegexValidator reggiesListNull = new RegexValidator(regexListNull);
+		}
+		catch(IllegalArgumentException e) {
+			fail = true;
+		}
+		assertEquals(true, fail);
+		fail = false;
+		try {
+			RegexValidator reggiesNull = new RegexValidator(regexNull);
+		}
+		catch(IllegalArgumentException e) {
+			fail = true;
+		}
+		assertEquals(true, fail);
+
+		assertTrue(reggie.isValid("I lost my wallet"));
+		assertTrue(reggies.isValid("I lost my wallet"));
+		assertTrue(reggiesCase.isValid("I lost my WALLET"));
+		assertFalse(reggies.isValid(null));
+		assertFalse(reggie.isValid(null));
+		assertFalse(reggies.isValid("?"));
+	}
+	
+	@Test
+	public void testMatch() {
+		
+	}
+	
+	@Test
+	public void testValidate() {
+		RegexValidator reggie = new RegexValidator("I lost my \\w+");
+		RegexValidator reggieCase = new RegexValidator("I lost my \\w+", false);
+		RegexValidator grouped = new RegexValidator("(I) (lost) ((my) (wallet))");
+		RegexValidator reggies = new RegexValidator(regexList);
+		RegexValidator reggiesCase = new RegexValidator(regexList, false);
+		assertEquals("", reggie.validate("I lost my wallet"));
+		assertEquals(null, reggie.validate(null));
+		assertEquals("Ilostmy walletmywallet", grouped.validate("I lost my wallet"));
+	}
+	
+	@Test
+	public void testToString() {
+		RegexValidator reggie = new RegexValidator("I lost my \\w+");
+		RegexValidator reggies = new RegexValidator(regexList);
+		assertEquals(reggies.toString(), "RegexValidator{^[a-z]{1,10}$,I lost my \\w+,^[a-z0-9_-]{3,15}$,^[0-9]{1,10}$}");
+		assertEquals(reggie.toString(), "RegexValidator{I lost my \\w+}");
+	}
 }
