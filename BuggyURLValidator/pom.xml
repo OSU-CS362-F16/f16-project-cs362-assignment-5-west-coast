@@ -11,7 +11,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.2</version>
+      <version>4.6</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -28,8 +28,9 @@
 	<build><plugins><plugin>
 	    <groupId>org.pitest</groupId>
 	    <artifactId>pitest-maven</artifactId>
-	    <version>0.32</version>
+	    <version>0.33</version>
 	    <configuration>
+	    	<verbose>false</verbose>
 	        <targetClasses>
 	            <param>osu.cs362.URLValidator.*</param>
 	        </targetClasses>
@@ -45,6 +46,7 @@
 			<artifactId>findbugs-maven-plugin</artifactId>
 			<version>3.0.4</version>
 		</plugin>
+
 	</plugins>
 </reporting>
 
