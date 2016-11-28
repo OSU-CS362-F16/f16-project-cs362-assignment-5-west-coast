@@ -11,11 +11,10 @@ import org.jaxen.function.StringFunction;
 // stackoverflow.com/questions
 
 
-import org.junit.Before;
-import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.*;
+<<<<<<< HEAD
 import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
@@ -23,11 +22,14 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Random;
+=======
+>>>>>>> 34f7a59c953f23e89f51c1934cf0e71270823042
 
 public class URLValidatorUnitTest {
 
 	private boolean verbose = true;
 
+<<<<<<< HEAD
 // list of test strings
 //			// examples from rfc2396
 //			"http://www.ietf.org/rfc/rfc2396.txt",
@@ -35,6 +37,8 @@ public class URLValidatorUnitTest {
 //			"ftp://ds.iternic.net/rfc/",
 //			"http://www.ics.uci.edu/pub/ietf/uri/historical.html#WARNING",
 
+=======
+>>>>>>> 34f7a59c953f23e89f51c1934cf0e71270823042
 	// schemes
 	static String[] defaultSchemes = {"http", "https", "ftp" };
 	static String[] schemes = {"http","https"};  // default includes 'ftp' as well
@@ -42,6 +46,7 @@ public class URLValidatorUnitTest {
 	// regex option
 	static String regexStr = "[a-z]";
 	static String regexNotSpecified = "not specified in constructor ";
+<<<<<<< HEAD
 
 	// options
 	private long[] options = {
@@ -85,6 +90,9 @@ public class URLValidatorUnitTest {
 		"ON,ON,ON,ON"
 		};
 
+=======
+	
+>>>>>>> 34f7a59c953f23e89f51c1934cf0e71270823042
 	@Test
 	public void IsValidComponentsTest() {
 		UrlValidator uv = new UrlValidator();
