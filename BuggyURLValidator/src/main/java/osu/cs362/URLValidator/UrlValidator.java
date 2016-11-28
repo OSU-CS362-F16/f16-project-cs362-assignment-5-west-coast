@@ -416,6 +416,9 @@ public class UrlValidator implements Serializable {
      * @return true if path is valid.
      */
     protected boolean isValidPath(String path) {
+        // System.out.println("=== IN isValidPath ===");
+        // System.out.println(path);
+
         if (path == null) {
             return false;
         }
@@ -424,18 +427,30 @@ public class UrlValidator implements Serializable {
             return false;
         }
 
+        // System.out.println("=== After Match Count ===");
+
         int slash2Count = countToken("//", path);
         if (isOff(ALLOW_2_SLASHES) && (slash2Count > 0)) {
             return false;
         }
 
+        // System.out.println("=== After DoubleSlash Count ===");
+
+
         int slashCount = countToken("/", path);
         int dot2Count = countToken("..", path);
+
+        // System.out.println("slashCount: " + slashCount);
+        // System.out.println("dot2Count: " + dot2Count );
+
         if (dot2Count > 0) {
             if ((slashCount - slash2Count - 1) <= dot2Count) {
                 return false;
             }
         }
+
+        // System.out.println("=== After Path Math ===");
+
 
         return true;
     }
