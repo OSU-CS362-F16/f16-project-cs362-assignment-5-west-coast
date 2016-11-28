@@ -19,19 +19,19 @@ public class URLValidatorUnitTest {
 	private boolean verbose = true;
 
 	// schemes
-	static String[] defaultSchemes = {"http", "https", "ftp" };
+	static String[] defaultSchemes = {"http", "https", "ftp" }; 
 	static String[] schemes = {"http","https"};  // default includes 'ftp' as well
-
+	
 	// regex option
 	static String regexStr = "[a-z]";
 	static String regexNotSpecified = "not specified in constructor ";
-
+	
 	@Test
 	public void IsValidComponentsTest() {
 		UrlValidator uv = new UrlValidator();
 		String testString = "http://www.ics.uci.edu/pub/ietf/uri/historical.html?abc=1";
 		System.out.println("\nComponents test for \"" + testString +"\"");
-		// 	assertTrue("Url \"" + testString + "\" returns false", uv.isValid(testString));
+		assertTrue("Url \"" + testString + "\" returns false", uv.isValid(testString));
 		System.out.println("end components test\n");
 	}
 
@@ -43,8 +43,8 @@ public class URLValidatorUnitTest {
 		UrlValidator uvNoFragment = new UrlValidator(UrlValidator.NO_FRAGMENTS);
 		assertFalse("Fragments not allowed: \"" + "http://www.ics.uci.edu/pub/ietf/uri/historical.html#WARNING" + "\"", uvNoFragment.isValid("http://www.ics.uci.edu/pub/ietf/uri/historical.html#WARNING"));
 	}
-
-
+	
+	
 	@Test
 	public void IsValidAuthorityTest() {
 		UrlValidatorExtension uv = new UrlValidatorExtension();
@@ -56,59 +56,30 @@ public class URLValidatorUnitTest {
 
 	@Test
 	public void IsValidPathTest() {
-		UrlValidator uv = new UrlValidator();
+		UrlValidatorExtension uv = new UrlValidatorExtension();
 		assertFalse("null input to isValidPath returns true",uv.isValidPath(null));
 		//should blank return false???
 		assertTrue("empty path \"\" returns false",uv.isValidPath(""));
-		assertFalse("IsValidPath - Complex, Double and Single Dots, Double-Slash Disallowed", uv.isValidPath("/F/LUUGNNPWO/MUMSS/../DFYH./MARWDO/RHN//././JIBPWDJHFDOGW/G/QCJ.html"));
-		assertTrue("IsValidPath - Complex, Double and Single Dots, No Double-Slash", uv.isValidPath("/F/LUUGNNPWO/MUMSS/../DFYH./MARWDO/RHN/./JIBPWDJHFDOGW/G/QCJ.html"));
-		assertTrue("IsValidPath - Complex, Single Dots", uv.isValidPath("/F/PSEJK/LUUGNNPWO.MUMSS/DFYHMARWDO/RHN/./JIBPWDJHFDOGW/G/QCJ"));
 	}
-
+	
 	@Test
 	public void IsValidQueryTest() {
 		UrlValidatorExtension uv = new UrlValidatorExtension();
 		assertTrue("null input to isValidQuery should return true",uv.isValidQuery(null));
-		assertTrue("query of blank space \"\" returns true",uv.isValidQuery(""));
-
-		// QUESTION: clarkje: Where did this requirement come from?  I don't think this test is valid
-		// assertFalse("query with \"#\" should return false",uv.isValidQuery("#"));
-
+		// should blank return false?
+		assertFalse("query of blank space \"\" returns true",uv.isValidQuery(""));
+		assertFalse("query with \"#\" should return false",uv.isValidQuery("#"));
+		// What is a true query???
 		assertTrue("valid query \"?([^#]*)\" returns false for \"?abc=1\"", uv.isValidQuery("?abc=1") );
-		assertTrue("valid query \"?([^#]*)\" returns false for \"?abc=1\"", uv.isValidQuery("abc=1") );
-		assertTrue("valid query, mulitple params", uv.isValidQuery("abc=1&def=2"));
-
-		// BUG (3): isValidQuery() doesn't really check to see if the punctuation between parameters makes sense
-		// assertFalse("invalid query section, crazy punctuation", uv.isValidQuery("abc==123&&&=def=1234"));
-
-		// BUG (9): isValidQuery doesn't flag queries with disallowed characters as invalid
-		// assertFalse("invalid query - disallowed characters", uv.isValidQuery("?kp.ndvrlq1Q,M'+UZYK?`zqhzb%a>~A\""));
 	}
-
-	@Test
-	public void IsValidFragment_NoFragmentsTest() {
-		UrlValidatorExtension uvNoFragments = new UrlValidatorExtension(UrlValidator.NO_FRAGMENTS);
-		assertFalse("NO_FRAGMENTS - otherwise valid fragment", uvNoFragments.isValidFragment("WARNING"));
-		assertFalse("NO_FRAGMENTS - random punctuation", uvNoFragments.isValidFragment("./?$23&%*(@#``!!($)@[];,,..//\\*&%^$%#@!*())"));
-		assertTrue("NO_FRAGMENTS - isValidFragment is NULL",uvNoFragments.isValidFragment(null));
-	}
-
+	
 	@Test
 	public void IsValidFragmentTest() {
+		UrlValidatorExtension uvNoFragments = new UrlValidatorExtension(UrlValidator.NO_FRAGMENTS);
+		assertFalse("NO_FRAGMENTS is set", uvNoFragments.isValidFragment("WARNING"));
+		assertTrue("null input to isValidFragment returns false",uvNoFragments.isValidFragment(null));
 		UrlValidatorExtension uv = new UrlValidatorExtension();  // by default allow fragments
-		assertTrue("Valid Fragment",uv.isValidFragment("WARNING"));
-		// BUG (4): isValidFragment() fails to detect improper usage of % (there's probably more bugs to mine in this vein...)
-		// assertFalse("FRAGMENTS - random punctuation", uv.isValidFragment("./?%$2%3&%*%(@#`%`!!(%$)@[];,,%..//\\*%&%^$%%#@!*%())%"));
-		assertTrue("FRAGMENTS - percent encoding", uv.isValidFragment("If%20you%20haven%27t%20got%20anything%20nice%20to%20say%20about%20anybody%2C%20come%20sit%20next%20to%20me.%20"));
-		assertTrue("FRAGMENTS - NULL Fragment is valid",uv.isValidFragment(null));
-		assertTrue("FRAGMENTS - Empty Fragment is valid",uv.isValidFragment("#"));
-
-		// BUG (8): isValidFragment() fails to detect special characters in the fragment
-		// assertFalse("FRAGMENTS - Special Characters", uv.isValidFragment("http://www.ics.uci.edu/pub/ietf/uri/historical.html#EnZ^b1XXL"));
-		assertTrue("FRAGMENTS - No Special Characters", uv.isValidFragment("http://www.ics.uci.edu/pub/ietf/uri/historical.html#EnZb1XXL"));
-
-
-		// QUESTION: Technically, anything between the fragment identifier and the end of the URL is valid, but a trailing unencoded space seems weird
-		assertTrue("FRAGMENTS - Empty Fragment followed by space",uv.isValidFragment("# "));
+		assertTrue("NO_FRAGMENTS is not set",uv.isValidFragment("WARNING"));
 	}
+	
 }
