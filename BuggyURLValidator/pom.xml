@@ -31,10 +31,10 @@
 	    <version>0.32</version>
 	    <configuration>
 	        <targetClasses>
-	            <param>com.your.package.root.want.to.mutate*</param>
+	            <param>osu.cs362.URLValidator.*</param>
 	        </targetClasses>
 	        <targetTests>
-	            <param>com.your.package.root*</param>
+	            <param>osu.cs362.URLValidator.*</param>
 	        </targetTests>
 	    </configuration>
 	</plugin></plugins></build>
