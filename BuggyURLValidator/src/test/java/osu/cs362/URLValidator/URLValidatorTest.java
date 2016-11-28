@@ -206,6 +206,7 @@ public class URLValidatorTest {
 			} else {
 				fail("Expected results file not found.");
 			}
+			testCaseIndex = 0; // reset the counter for test cases
 		}
 	}
 	
