@@ -38,36 +38,36 @@ public class URLValidatorTest {
 			"http://www.w3.org/Addressing/",
 			"ftp://ds.iternic.net/rfc/",
 			"http://www.ics.uci.edu/pub/ietf/uri/historical.html#WARNING",
-			
+
 	"http:/foo.bar.com/",  // valid http URL
 	"http://foo//foo.bar.com//",  // ALLOW_2_SLASHES
 	"http//foo.bar.com/",  // invalid
 	"http://foo",   // NO_FRAGMENTS
-	
+
 	"https:/foo.bar.com/",
 	"https://foo//foo.bar.com//",
 	"https//foo..bar.com/",
 	"https://foo",
-	
+
 	"ftp:/foo.bar.com/",
 	"ftp://foo//foo.bar.com//",
 	"ftp:///foo.bar.com/",
 	"ftp://foo",
-	
+
 	"file:/C:/foo.bar.html/",  // ALLOW_LOCAL_URLS
 	"file://C://foo//foo.bar.html//", // ALLOW_LOCAL_URLS &&  ALLOW_2_SLASHES
 	"file///C:/foo.bar.html/", // invalid
-	"file://c:/foo", 
-	
+	"file://c:/foo",
+
 	"abc://foo.bar.com/", // regexStr valid
 	"123://foo.bar.com/", // regexStr invalid - numbers
 	"HTTP://foo.bar.com/", // regexStr invalid - uppercase
 	"http://FOO.bar.com/",
 	"http://foo.BAR.com/",
 	"http://foo.bar.COM/",
-	
+
 	"\\",
-	"\\\\",	
+	"\\\\",
 	"http:\\foo.bar.com\\",  // valid http URL
 	"http:\\\\foo\\\\foo.bar.com\\",  // ALLOW_2_SLASHES
 	"http\\\\foo.bar.com\\",  // invalid
@@ -79,24 +79,24 @@ public class URLValidatorTest {
 	":",
 	"//",
 	"//../////",
-	"Réal.com"
+	"Rï¿½al.com"
 	};
 
 
 	// schemes
-	static String[] defaultSchemes = {"http", "https", "ftp" }; 
+	static String[] defaultSchemes = {"http", "https", "ftp" };
 	static String[] schemes = {"http","https"};  // default includes 'ftp' as well
-	
+
 	// regex option
 	static String regexStr = "[a-z]";
 	static String regexNotSpecified = "DEFAULT";
-	
+
 	// options
 	private long[] options = {
 			0,
 			UrlValidator.ALLOW_ALL_SCHEMES,
 			UrlValidator.ALLOW_2_SLASHES,
-			UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,			
+			UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,
 			UrlValidator.NO_FRAGMENTS,
 			UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES,
 			UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_2_SLASHES,
@@ -104,13 +104,13 @@ public class URLValidatorTest {
 			UrlValidator.ALLOW_LOCAL_URLS,
 			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_ALL_SCHEMES,
 			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_2_SLASHES,
-			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,			
+			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,
 			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS,
 			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES,
 			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_2_SLASHES,
 			UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.NO_FRAGMENTS + UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_2_SLASHES,
 	};
-	
+
 	// list of the option states corresponding to index
 	private String[] strOptions = {
 		// represented in this order:
@@ -130,10 +130,10 @@ public class URLValidatorTest {
 		"ON,ON,OFF,OFF",
 		"ON,ON,OFF,ON",
 		"ON,ON,ON,OFF",
-		"ON,ON,ON,ON"					 
+		"ON,ON,ON,ON"
 		};
-	
-	@Test 
+
+	@Test
 	public void UrlValidatorAllTest() {
 		testStrings.clear();
 		for (int i=0; i<arrayUrls.length; i++) {
@@ -149,11 +149,11 @@ public class URLValidatorTest {
 		URLValidatorGetInstanceTest(testStrings);
 		printResults("./target/results.csv");
 	}
-	
+
 	@Test
 	public void IsValidRfc2396Test() {
 		listResults.clear();
-		readStrings("TestData/rfc2396URI.txt"); // reads file into testStrings 
+		readStrings("TestData/rfc2396URI.txt"); // reads file into testStrings
 		printArrayUrlsTitle("./target/rfc2396URIResults.csv", false);
 		UrlValidator uv = new UrlValidator(schemes);
 		String s = printUrlValidatorInfo(schemes, (int) uv.getOptions(), regexNotSpecified);
@@ -165,8 +165,8 @@ public class URLValidatorTest {
 		}
 		printResults("./target/rfc2396URIResults.csv");
 	}
-	
-	
+
+
 	// Print Titles and results from the UrlValidatorAllTest
 	public void printArrayUrlsTitle(String resultsFileName, boolean includeNull) {
 		try {
@@ -185,7 +185,7 @@ public class URLValidatorTest {
 					urlWriter.println(",null,");
 				else
 					urlWriter.println("");
-			} 
+			}
 			catch (Exception e) {
 				System.out.println("couldn't write results file titles: Message: " + e.getMessage() + " Localized: " + e.getLocalizedMessage());
 				System.out.println("");
@@ -193,11 +193,11 @@ public class URLValidatorTest {
 			urlWriter.close();
 		} catch (Exception ee) {
 			System.out.println("file creation message: Message: " + ee.getMessage() + " Localized: " + ee.getLocalizedMessage());
-			System.out.println("");			
-		}		
+			System.out.println("");
+		}
 	}
-	
-	
+
+
 	public void printResults(String resultsFileName) {
 		try {
 			FileWriter fw = new FileWriter(resultsFileName, true);
@@ -205,7 +205,7 @@ public class URLValidatorTest {
 			try {
 				for(int i=0; i<listResults.size(); i++) {
 					writer.println(listResults.get(i));
-				}			
+				}
 			} catch (Exception e) {
 				System.out.println("couldn't write results file: Message: " + e.getMessage() + " Localized: " + e.getLocalizedMessage());
 				System.out.println("");
@@ -213,11 +213,11 @@ public class URLValidatorTest {
 			writer.close();
 		} catch (Exception ee) {
 			System.out.println("file creation message: Message: " + ee.getMessage() + " Localized: " + ee.getLocalizedMessage());
-			System.out.println("");			
+			System.out.println("");
 		}
 	}
-	
-	
+
+
 	// read in a list of test strings
 	//reference: www.mkyong.com/how-to-read-file-from-java-bufferedreader-example/
 	public void readStrings(String filename) {
@@ -225,7 +225,7 @@ public class URLValidatorTest {
 		testStrings.clear();
 		try {
 			String sCurrentLine;
-			
+
 			br = new BufferedReader(new FileReader(filename));
 			if (verbose) {
 				System.out.println("\nList of URLs to test from \"" + filename + "\"");
@@ -239,7 +239,7 @@ public class URLValidatorTest {
 		}
 		catch (IOException e) {
 			System.out.println("file read failed: Message: " + e.getMessage() + " Localized: " + e.getLocalizedMessage());
-			System.out.println("");			
+			System.out.println("");
 		}
 		finally {
 			try {
@@ -247,21 +247,21 @@ public class URLValidatorTest {
 			}
 			catch (IOException ee) {
 				System.out.println("read file close failed: Message: " + ee.getMessage() + " Localized: " + ee.getLocalizedMessage());
-				System.out.println("");			
+				System.out.println("");
 			}
 		}
 	}
-	
-	
-	
+
+
+
 // add checks later
 //	private void checkUrls(boolean[] chkStates, String assertStr, UrlValidator uv) {
 //		for (int i = 0; i < arrayUrls.length; i++) {
 //			assertEquals(assertStr+ "; \"" + arrayUrls[i] + "\"", chkStates[i], uv.isValid(arrayUrls[i]));
 //		}
 //	}
-	
-	
+
+
 	// check isValid result for each string, save results to print
 	private String checkIsValidUrls(UrlValidator uv, List<String> urls) {
 		String s = new String();
@@ -299,12 +299,12 @@ public class URLValidatorTest {
 		}
 		return s;
 	}
-	
+
 	private String printUrlValidatorInfo(String[] schemes, Integer options, String regex) {
 		return new String(testCaseIndex++ + "," + printSchemes(schemes)
 		 	+ "," + printOptions(options) + "," + regex);
 	}
-	
+
 	private void URLValidatorSchemesConstructor(List<String> urls) {
 		UrlValidator uv = new UrlValidator(schemes);
 		String s = printUrlValidatorInfo(schemes, (int) uv.getOptions(), regexNotSpecified);
@@ -315,7 +315,7 @@ public class URLValidatorTest {
 			System.out.println(listResults.get(listResults.size()-1));
 		}
 	}
-	
+
 	private void URLValidatorConstructorTest(List<String> urls) {
 		UrlValidator uv = new UrlValidator();
 		String s = printUrlValidatorInfo(defaultSchemes, (int) uv.getOptions(), regexNotSpecified);
@@ -326,7 +326,7 @@ public class URLValidatorTest {
 			System.out.println(listResults.get(listResults.size()-1));
 		}
 	}
-	
+
 
 	private void URLValidatorOptionsConstructorTest(List<String> urls) {
 		for (int i=0; i<16; i++) {
@@ -340,7 +340,7 @@ public class URLValidatorTest {
 			}
 		}
 	}
-	
+
 
 	private void URLValidatorSchemesOptionsConstructorTest(List<String> urls) {
 		for (int i=0; i<16; i++) {
@@ -354,7 +354,7 @@ public class URLValidatorTest {
 			}
 		}
 	}
-	
+
 
 	private void URLValidatorRegexOptionsConstructorTest(List<String> urls) {
 		RegexValidator authorityValidator = new RegexValidator(regexStr);
@@ -369,7 +369,7 @@ public class URLValidatorTest {
 			}
 		}
 	}
-	
+
 
 	private void URLValidatorSchemesRegexOptionsConstructorTest(List<String> urls) {
 		RegexValidator authorityValidator = new RegexValidator(regexStr);
@@ -384,7 +384,7 @@ public class URLValidatorTest {
 			}
 		}
 	}
-	
+
 
 	private void URLValidatorGetInstanceTest(List<String> urls) {
 		UrlValidator uv = UrlValidator.getInstance();
@@ -396,7 +396,7 @@ public class URLValidatorTest {
 			System.out.println(listResults.get(listResults.size()-1));
 		}
 	}
-	
+
 	// if options are in range, print correct combination, else print error message
 	private String printOptions(long options) {
 		if (((int) options >= 0) || ( (int) options < 16 ) )
@@ -404,7 +404,7 @@ public class URLValidatorTest {
 		System.out.println("Option value not in valid range: " + (int) options);
 		return("ERR,ERR,ERR,ERR");
 	}
-	
+
 	private String printSchemes(String[] arrSchemes) {
 		String str;
 		str = "{";
@@ -414,5 +414,5 @@ public class URLValidatorTest {
 		str = str + "}";
 		return str;
 	}
-	
+
 }

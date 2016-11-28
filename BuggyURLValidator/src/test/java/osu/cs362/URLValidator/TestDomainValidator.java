@@ -43,7 +43,7 @@ public class TestDomainValidator  {
     // Per RFC 1123: A 255 character hostname should be valid
     assertTrue("255 Character Hostname", dv.isValid("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"));
 
-    // BUG: Per RFC 1123 says 255 character hostnames should be supported.
+    // BUG (7): Per RFC 1123 says 255 character hostnames should be supported.
     // We validate hostnames that are longer, but this may not be compatible with all clients.
     // assertFalse("256 Character Hostname", dv.isValid("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"));
 
@@ -56,7 +56,7 @@ public class TestDomainValidator  {
     assertTrue("bloopsadfo32397ohwifljshld.com", dv.isValid("bloopsadfo32397ohwifljshld.com"));
     assertTrue("localhost.localdomain (with local allowed)", dv.isValid("localhost.localdomain"));
 
-    // BUG: Unicode -- Only ASCII is allowed in URLs, and I don't think we're validating IRIs here
+    // BUG (5): Unicode -- Only ASCII is allowed in URLs, and I don't think we're validating IRIs here
     // assertTrue("名がドメイン.com", dv.isValid("名がドメイン.com"));
 
     // Punycode
@@ -64,7 +64,7 @@ public class TestDomainValidator  {
 
     assertFalse("Empty String", dv.isValid(""));
 
-    // BUG: RFC 2181: The zero length full name is defined as representing the root of
+    // BUG (6): RFC 2181: The zero length full name is defined as representing the root of
     // the DNS tree, and is typically written and displayed as ".
     // assertTrue(".", dv.isValid("."));
 
