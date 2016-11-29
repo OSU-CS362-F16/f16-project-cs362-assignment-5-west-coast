@@ -45,11 +45,13 @@ public class TestInetAddressValidator  {
     assertFalse("Kona", iv.isValidInet4Address("Kona"));
     assertFalse(" ", iv.isValidInet4Address(" "));
     assertFalse("null", iv.isValidInet4Address(null));
+    assertFalse("...", iv.isValidInet4Address("..."));
 
     // Not sure if all 0s is valid
     // assertFalse("000.000.000.000", iv.isValid("000.000.000.000"));
     assertFalse("10..123.120", iv.isValidInet4Address("10..123.120"));
 
+    assertFalse("625.3f.12348721.123.120", iv.isValidInet4Address("625.3f.12348721.123.120"));
 
 
 

@@ -263,6 +263,126 @@ public class RandomURLTest {
 		return result;
 	}
 
+	//	Generates a random string for the port section of the URL
+	//	There are 3 types of strings that we can generate:
+	//	- 0 - numeric strings (valid)
+	//	- 1 - alphanumeric (potentially valid)
+	//	- 2 - extended ascii (potentially valid, but unlikely)
+	// 	The length is random, from 0 - 16 characters
+
+  private String getRandomPort(Integer group) {
+		Random r = new Random();
+		String result = new String();
+		String appendChar = new String();
+
+		// Generate a string between 0 and 256 chars in length
+		int len = r.nextInt(16);
+
+		if (group < 0 || group > 2) {
+			group = r.nextInt(2);
+		}
+
+		for (int i = 0; i < len; i++) {
+			// Numeric
+			if (group == 0) {
+	      appendChar = Character.toString((char)(r.nextInt(10) + 48));
+			// Alphanumeric
+			} else if (group == 1) {
+				int type = r.nextInt(2);
+				if (type == 0) {
+					// A-Z
+					appendChar = Character.toString((char)(r.nextInt(25) + 65));
+				} else if (type == 1) {
+					// a-z
+					appendChar = Character.toString((char)(r.nextInt(25) + 97));
+				} else {
+					// 0 - 9
+					appendChar = Character.toString((char)(r.nextInt(10) + 48));
+				}
+			// Extended
+			} else {
+			    appendChar = Character.toString((char)r.nextInt(255));
+			}
+			result += appendChar;
+		}
+		return result;
+	}
+
+	@Test
+	public void testRandomPortExtended() {
+		Random r = new Random();
+		UrlValidator validator = new UrlValidator();
+		UrlValidatorOracle oracle = new UrlValidatorOracle();
+		String testString = new String();
+
+		for (int i = 0; i < 1000; i++) {
+			testString += "www.osu.edu:";
+			testString += getRandomPort(1);
+			testString += "/bloop/derp/blerg/form.php?";
+			testString += "#asdf23857ogihsnv";
+
+			// Provide some useful output
+			String message = new String();
+			message = "Test String: ";
+			message += testString;
+			message += " Validator: ";
+			message += validator.isValid(testString);
+			message += " Oracle: ";
+			message += oracle.isValid(testString);
+			assertTrue(message, (validator.isValid(testString) == oracle.isValid(testString)));
+		}
+	}
+
+	@Test
+	public void testRandomPortAlphaNumeric() {
+		Random r = new Random();
+		UrlValidator validator = new UrlValidator();
+		UrlValidatorOracle oracle = new UrlValidatorOracle();
+		String testString = new String();
+
+		for (int i = 0; i < 1000; i++) {
+			testString += "www.osu.edu:";
+			testString += getRandomPort(1);
+			testString += "/bloop/derp/blerg/form.php?";
+			testString += "#asdf23857ogihsnv";
+
+			// Provide some useful output
+			String message = new String();
+			message = "Test String: ";
+			message += testString;
+			message += " Validator: ";
+			message += validator.isValid(testString);
+			message += " Oracle: ";
+			message += oracle.isValid(testString);
+			assertTrue(message, (validator.isValid(testString) == oracle.isValid(testString)));
+		}
+	}
+
+	@Test
+	public void testRandomPortInteger() {
+		Random r = new Random();
+		UrlValidator validator = new UrlValidator();
+		UrlValidatorOracle oracle = new UrlValidatorOracle();
+		String testString = new String();
+
+		for (int i = 0; i < 1000; i++) {
+			testString += "www.osu.edu:";
+			testString += getRandomPort(0);
+			testString += "/bloop/derp/blerg/form.php?";
+			testString += "#asdf23857ogihsnv";
+
+			// Provide some useful output
+			String message = new String();
+			message = "Test String: ";
+			message += testString;
+			message += " Validator: ";
+			message += validator.isValid(testString);
+			message += " Oracle: ";
+			message += oracle.isValid(testString);
+			assertTrue(message, (validator.isValid(testString) == oracle.isValid(testString)));
+		}
+	}
+
 	@Test
 	public void testRandomSchemeExtended() {
 		Random r = new Random();

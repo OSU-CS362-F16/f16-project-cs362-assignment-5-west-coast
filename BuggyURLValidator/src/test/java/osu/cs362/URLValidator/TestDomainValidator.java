@@ -27,6 +27,7 @@ public class TestDomainValidator  {
   // ^(?:\p{Alnum}(?>[\p{Alnum}-]*\p{Alnum})*\\.)+(\p{Alpha}{2,})$
 
   public void testIsValid() {
+
     DomainValidator dv = DomainValidator.getInstance(true);
 
     // Trivial
@@ -70,6 +71,10 @@ public class TestDomainValidator  {
 
     // Gibberish with Special Characters
     assertFalse("$#(*@73598237t468937133>.&#9857)", dv.isValid("$#(*@73598237t468937133>.&#9857)"));
+
+    // Canonical hostname on localhost/localdomain
+    assertTrue("foo.localhost", dv.isValid("foo.localhost"));
+    assertTrue("foo.localdomain", dv.isValid("foo.localdomain"));
   }
 
   @Test
