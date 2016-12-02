@@ -24,14 +24,15 @@ public class TestRegexValidator  {
 		assertFalse(rv2.isValid("bloop"));
 
 	}
-	
+	// List of simple regexs
 	static String[] regexList = {
-		"^[a-z]{1,10}$",
-		"I lost my \\w+",
-		"^[a-z0-9_-]{3,15}$",
-		"^[0-9]{1,10}$"
+		"^[a-z]{1,10}$",		// character string from 1 to 10 chars long
+		"I lost my \\w+",		// string "I lost my " and then any fourth word
+		"^[a-z0-9_-]{3,15}$",	// alpha-numeric username regex
+		"^[0-9]{1,10}$"			// number string from 1 to 10 numbers long
 	};
 	
+	// Regex list with multiple elements that are empty
 	static String[] regexListNull = {
 		"\n",
 		"",
@@ -39,6 +40,7 @@ public class TestRegexValidator  {
 		""
 	};
 	
+	// Null regex list
 	static String[] regexNull = null;
 	
 	@Test
@@ -80,7 +82,19 @@ public class TestRegexValidator  {
 	
 	@Test
 	public void testMatch() {
+		RegexValidator reggie = new RegexValidator("I lost my \\w+");
+		RegexValidator reggieCase = new RegexValidator("I lost my \\w+", false);
+		RegexValidator reggies = new RegexValidator(regexList);
+		RegexValidator reggiesCase = new RegexValidator(regexList, false);
+		RegexValidator grouped = new RegexValidator("(I) (lost) ((my) (wallet))");
 		
+		String[] groups = grouped.match("I lost my wallet");
+		//System.out.println(Arrays.toString(groups));
+		String[] group2 = grouped.match("lost my wallet");
+		String[] group3 = grouped.match(null);
+		assertEquals(Arrays.toString(groups), "[I, lost, my wallet, my, wallet]");
+		assertEquals(group2, null);
+		assertEquals(group3, null);
 	}
 	
 	@Test
