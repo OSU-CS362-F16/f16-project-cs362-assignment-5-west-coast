@@ -30,7 +30,6 @@ public class URLValidatorUnitTest {
 	public void IsValidFileSchemeTests() {
 		UrlValidator uv = new UrlValidator();
 		// QUESTION: I'm pretty sure this is valid
-		//assertTrue("file:///path/index.html", uv.isValid("file:///path/index.html"));
 		//assertTrue("file:index.html", uv.isValid("file:index.html"));
 		//assertTrue("file:/path/index.html", uv.isValid("file:/path/index.html"));
 		//assertTrue("file://path/index.html", uv.isValid("file://path/index.html"));

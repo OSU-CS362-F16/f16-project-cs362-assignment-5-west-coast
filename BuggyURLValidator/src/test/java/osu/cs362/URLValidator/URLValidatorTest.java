@@ -297,7 +297,18 @@ public class URLValidatorTest {
 		}
 	}
 	
-
+	// test for local urls
+	@Test
+	public void urlValidatorLocalUrlsTest() { 
+		List<String> inputListStrings = readStrings("./TestData/input/rfc2396URI_08.txt"); // reads each line of file as a string
+		UrlValidator uv = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
+		UrlValidator uvF = new UrlValidator(); // Local URLS not allowed
+		for (int j=0; j<inputListStrings.size(); j++) {
+			// BUG: Local URLs allowed setting doesn't seem to allow valid local URLs
+			//assertTrue("ALLOW_LOCAL_URLS setting ON, should return true for \"" + inputListStrings.get(j) + "\" " , uv.isValid(inputListStrings.get(j)));
+			assertFalse("ALLOW_LOCAL_URLS setting OFF, should return false for \"" + inputListStrings.get(j) + "\" " , uvF.isValid(inputListStrings.get(j)));
+		}
+	}
 	
 	// expected to fail under all scenarios
 	@Test
