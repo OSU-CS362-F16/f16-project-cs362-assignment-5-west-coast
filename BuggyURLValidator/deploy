@@ -1,5 +1,10 @@
+#!/bin/bash
 mkdir -p ~/public_html/cs362ProjectReport
 rm -rf ~/public_html/cs362ProjectReport/*
 cp -rf target/site/* ~/public_html/cs362ProjectReport
+mkdir -p ~/public_html/cs362ProjectReport/pit-reports
+pitreport="$(ls -t ./target/pit-reports | head -n 1)"
+#echo "${pitreport}"
+cp -rf target/pit-reports/$pitreport/* ~/public_html/cs362ProjectReport/pit-reports
 chmod 0775 ~/public_html
 chmod -R 0775 ~/public_html/cs362ProjectReport
