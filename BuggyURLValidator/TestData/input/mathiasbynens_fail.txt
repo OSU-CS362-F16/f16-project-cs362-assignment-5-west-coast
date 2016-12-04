@@ -1,0 +1,33 @@
+http://
+http://.
+http://..
+http://../
+http://?
+http://??
+http://??/
+http://#
+http://##
+http://##/
+http://foo.bar?q=Spaces should be encoded
+//
+//a
+///a
+///
+http:///a
+foo.com
+rdar://1234
+h://test
+http:// shouldfail.com
+:// should fail
+http://foo.bar/foo(bar)baz quux
+ftps://foo.bar/
+http://-error-.invalid/
+http://-a.b.co
+http://a.b-.co
+http://3628126748
+http://.www.foo.bar/
+http://www.foo.bar./
+http://.www.foo.bar./
+
+http://142.42.1.1:8080/
+http://-.~_!$&'()*+

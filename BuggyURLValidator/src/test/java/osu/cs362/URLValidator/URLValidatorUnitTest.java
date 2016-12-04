@@ -35,7 +35,7 @@ public class URLValidatorUnitTest {
 		//assertTrue("file:/path/index.html", uv.isValid("file:/path/index.html"));
 		//assertTrue("file://path/index.html", uv.isValid("file://path/index.html"));
 	}
-
+	
 	@Test
 	public void IsValidComponentsTest() {
 		UrlValidator uv = new UrlValidator();
