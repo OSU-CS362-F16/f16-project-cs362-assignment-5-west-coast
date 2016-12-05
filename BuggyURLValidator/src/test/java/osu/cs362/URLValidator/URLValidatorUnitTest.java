@@ -45,7 +45,6 @@ public class URLValidatorUnitTest {
 	   references.
 		 */
 
-		UrlValidator uv = new UrlValidator();
 		//assertTrue("file:index.html", uv.isValid("file:index.html"));
 		//assertTrue("file:/path/index.html", uv.isValid("file:/path/index.html"));
 		//assertTrue("file://path/index.html", uv.isValid("file://path/index.html"));
