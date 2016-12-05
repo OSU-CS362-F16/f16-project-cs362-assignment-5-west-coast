@@ -1,3 +1,5 @@
 http://?df.ws/123
 ftp://foo.bar/baz
 http://foo.bar/?q=Test%20URL-encoded%20stuff
+http://1.1.1.1.1
+http://123.123.123

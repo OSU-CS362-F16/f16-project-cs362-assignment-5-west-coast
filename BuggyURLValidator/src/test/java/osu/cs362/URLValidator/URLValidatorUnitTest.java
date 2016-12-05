@@ -32,7 +32,7 @@ public class URLValidatorUnitTest {
 		UrlValidator uv = new UrlValidator(schemes);
 
 		assertTrue("file:///path/index.html", uv.isValid("file:///path/index.html"));
-
+		
 		// BUG 11: File schemes don't seem to validate correctly
 		// PER: RFC 2396
 
@@ -118,6 +118,8 @@ public class URLValidatorUnitTest {
 		assertFalse("IsValidPath - Complex, Double and Single Dots, Double-Slash Disallowed", uv.isValidPath("/F/LUUGNNPWO/MUMSS/../DFYH./MARWDO/RHN//././JIBPWDJHFDOGW/G/QCJ.html"));
 		assertTrue("IsValidPath - Complex, Double and Single Dots, No Double-Slash", uv.isValidPath("/F/LUUGNNPWO/MUMSS/../DFYH./MARWDO/RHN/./JIBPWDJHFDOGW/G/QCJ.html"));
 		assertTrue("IsValidPath - Complex, Single Dots", uv.isValidPath("/F/PSEJK/LUUGNNPWO.MUMSS/DFYHMARWDO/RHN/./JIBPWDJHFDOGW/G/QCJ"));
+		assertTrue("IsValidPath - Complex, multiple parameters", uv.isValidPath("/F/PSEJK/a=b;a=c"));
+		assertFalse("IsValidPath - doesn't start with /", uv.isValidPath("F/PSEJK/LUUGNNPWO.MUMSS/DFYHMARWDO/RHN/./JIBPWDJHFDOGW/G/QCJ"));
 
 		// Some esoteric edge cases for non alpha-numeric chars in URLs
 		// From http://doriantaylor.com/policy/other-non-alpha-numeric-characters-in-http-urls
@@ -131,7 +133,6 @@ public class URLValidatorUnitTest {
 		UrlValidator uv = new UrlValidator();
 		assertTrue("null input to isValidQuery should return true",uv.isValidQuery(null));
 		assertTrue("query of blank space \"\" returns true",uv.isValidQuery(""));
-		// What is a true query???
 		assertTrue("valid query \"?([^#]*)\" returns false for \"?abc=1\"", uv.isValidQuery("abc=1") );
 		assertTrue("valid query, mulitple params", uv.isValidQuery("abc=1&def=2"));
 
@@ -140,9 +141,6 @@ public class URLValidatorUnitTest {
 
 		// BUG (9): isValidQuery doesn't flag queries with disallowed characters as invalid
 		// assertFalse("invalid query - disallowed characters", uv.isValidQuery("?kp.ndvrlq1Q,M'+UZYK?`zqhzb%a>~A\""));
-
-		// QUESTION: Does # represent a missing query?
-		// assertFalse("query with \"#\" should return false",uv.isValidQuery("#"));
 	}
 
 	@Test

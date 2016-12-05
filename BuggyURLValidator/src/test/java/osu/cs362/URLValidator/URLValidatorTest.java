@@ -89,7 +89,7 @@ public class URLValidatorTest {
 	static String[] schemes = {"http","https"};  // default includes 'ftp' as well
 	
 	// regex option
-	static String regexStr = "^[\\w-\\.]*$";
+	static String regexStr = "^[\\w-\\\\.]*$";
 	static String regexNotSpecified = "DEFAULT";
 	
 	// options
@@ -223,7 +223,7 @@ public class URLValidatorTest {
 		inputListStrings.addAll(inputMathiasbynensStrings);
 		inputListStrings.addAll(inputGreenbytesStrings);
 		
-		RegexValidator authorityValidator = new RegexValidator(regexStr);
+		RegexValidator authorityValidator = new RegexValidator("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
 
 		for (int j=0; j<inputListStrings.size(); j++) { 
 			UrlValidator uv1 = new UrlValidator(schemes);
@@ -238,7 +238,7 @@ public class URLValidatorTest {
 				UrlValidator uv4 = new UrlValidator(schemes, options[i]);
 				assertTrue("UrlValidator(schemes, options["+ i + "]) valid input fails: \"" + inputListStrings.get(j) + "\"", uv4.isValid(inputListStrings.get(j)));
 				UrlValidator uv5 = new UrlValidator(authorityValidator, options[i]);
-				// Possible issue with the RegexValidator
+				// BUG: Using the same RegexValidator as the default, the assert fails when defined using RegexValidator
 				//assertTrue("UrlValidator(authorityValidator, options["+ i + "]) valid input fails: \"" + inputListStrings.get(j) + "\"", uv5.isValid(null));
 			}
 		}
@@ -352,8 +352,6 @@ public class URLValidatorTest {
 			assertFalse("url should return false using default REGEX validator for \"" + inputListStrings.get(j) + "\" " , uvDefault.isValid(inputListStrings.get(j)));
 		}
 	}
-	
-	
 	
 	// test special case that includes a comma since results are saved as .csv files
 	// rfc2396.txt requires "," to be escaped
