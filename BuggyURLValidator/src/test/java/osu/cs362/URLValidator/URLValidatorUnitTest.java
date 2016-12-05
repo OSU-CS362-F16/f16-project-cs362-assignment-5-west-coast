@@ -23,17 +23,31 @@ public class URLValidatorUnitTest {
 	static String[] schemes = {"http","https"};  // default includes 'ftp' as well
 
 	// regex option
-	static String regexStr = "^[\\w-\\.]*$";
+	static String regexStr = "[a-z]";
 	static String regexNotSpecified = "not specified in constructor ";
 
 	@Test
 	public void IsValidFileSchemeTests() {
-		UrlValidator uv = new UrlValidator();
-		// QUESTION: I'm pretty sure this is valid
-		//assertTrue("file:///path/index.html", uv.isValid("file:///path/index.html"));
-		//assertTrue("file:index.html", uv.isValid("file:index.html"));
-		//assertTrue("file:/path/index.html", uv.isValid("file:/path/index.html"));
-		//assertTrue("file://path/index.html", uv.isValid("file://path/index.html"));
+		String[] schemes = {"file"};
+		UrlValidator uv = new UrlValidator(schemes);
+
+		assertTrue("file:///path/index.html", uv.isValid("file:///path/index.html"));
+
+		// BUG 11: File schemes don't seem to validate correctly
+		// PER: RFC 2396
+
+		/*
+		 The path may consist of a sequence of path segments separated by a
+	   single slash "/" character.  Within a path segment, the characters
+	   "/", ";", "=", and "?" are reserved.  Each path segment may include a
+	   sequence of parameters, indicated by the semicolon ";" character.
+	   The parameters are not significant to the parsing of relative
+	   references.
+		 */
+
+		// assertTrue("file:index.html", uv.isValid("file:index.html"));
+		// assertTrue("file:/path/index.html", uv.isValid("file:/path/index.html"));
+		// assertTrue("file://path/index.html", uv.isValid("file://path/index.html"));
 	}
 
 	@Test
@@ -57,7 +71,7 @@ public class URLValidatorUnitTest {
 
 	@Test
 	public void IsValidAuthorityTest() {
-		UrlValidatorExtension uv = new UrlValidatorExtension();
+		UrlValidator uv = new UrlValidator();
 		assertFalse("null input to isValidAuthority returns true",uv.isValidAuthority(null));
 		assertFalse("authorityMatcher should not match but returns true",uv.isValidAuthority(""));
 		assertTrue("www.cnn.com:123",uv.isValidAuthority("www.cnn.com:123"));
@@ -66,16 +80,24 @@ public class URLValidatorUnitTest {
 		// Hits the String extra = authorityMatcher.group(PARSE_AUTHORITY_EXTRA); block in URLValidator
 		assertFalse("http://www.cnn.com:123:abcde/foo/", uv.isValid("http://www.cnn.com:123:abcde/foo/"));
 
-		// BUG: Authentication information is part of the authority, but always fails
-		// assertTrue("bob:foo@www.cnn.com:123",uv.isValidAuthority("bob:foo@www.cnn.com:123"));
+		// BUG 12: Authentication information is part of the authority, but always fails
+		//assertTrue("bob:foo@www.cnn.com:123",uv.isValidAuthority("bob:foo@www.cnn.com:123"));
+		//assertTrue("http://bob:foo@www.cnn.com",uv.isValid("http://bob:foo@www.cnn.com"));
 
 		assertFalse("authority \"www\" is not valid",uv.isValid("http://www/Addressing/"));
-		assertTrue("authority \"www.w3.org\" is valid",uv.isValid("http://www.w3.org/Addressing/"));
-		RegexValidator authorityValidator = new RegexValidator("[a-z]");
-		UrlValidatorExtension uvR = new UrlValidatorExtension(null, authorityValidator, UrlValidator.NO_FRAGMENTS);
-		assertTrue("authority \"www.w3.org\" is valid",uvR.isValid("http://www.w3.org"));
-		assertFalse("authority \"WWW.W3.ORG\" is not allowed for authority \"[a-z]\"",uvR.isValid("HTTP://WWW.W3.ORG"));
+	}
 
+	// Checking conditional logic around custom authority validator
+	@Test
+	public void IsValidCustomAuthorityTest() {
+		RegexValidator av = new RegexValidator("foo");
+		UrlValidator uv = new UrlValidator(null, av, 0);
+		assertTrue("custom validator expects foo", uv.isValidAuthority("foo"));
+		assertFalse("custom validator - no match", uv.isValidAuthority("blerp"));
+		assertFalse("custom validator - null", uv.isValidAuthority(null));
+
+		// Hitting the check on extra matches...
+		assertFalse("custom validator - no match", uv.isValidAuthority("foo:foo.blerp asdf"));
 	}
 
 	@Test
@@ -84,15 +106,29 @@ public class URLValidatorUnitTest {
 		assertFalse("null input to isValidPath returns true",uv.isValidPath(null));
 		//should blank return false???
 		assertTrue("empty path \"\" returns false",uv.isValidPath(""));
+		// Absolute Path
+		assertTrue("absolute path returns true", uv.isValidPath("/img/img.jpg"));
+
+		// Some weird edge cases for semicolons and path parameters
+		// From http://doriantaylor.com/policy/http-url-path-parameter-syntax
+		assertTrue("/path/name;param1;p2;p3 is valid", uv.isValidPath("/path/name;param1;p2;p3"));
+		assertTrue("/path/param=value;p2 is valid", uv.isValidPath("/path/param=value;p2"));
+		assertTrue(";param=val1,val2,val3 is valid", uv.isValidPath("/;param=val1,val2,val3"));
 
 		assertFalse("IsValidPath - Complex, Double and Single Dots, Double-Slash Disallowed", uv.isValidPath("/F/LUUGNNPWO/MUMSS/../DFYH./MARWDO/RHN//././JIBPWDJHFDOGW/G/QCJ.html"));
 		assertTrue("IsValidPath - Complex, Double and Single Dots, No Double-Slash", uv.isValidPath("/F/LUUGNNPWO/MUMSS/../DFYH./MARWDO/RHN/./JIBPWDJHFDOGW/G/QCJ.html"));
 		assertTrue("IsValidPath - Complex, Single Dots", uv.isValidPath("/F/PSEJK/LUUGNNPWO.MUMSS/DFYHMARWDO/RHN/./JIBPWDJHFDOGW/G/QCJ"));
+
+		// Some esoteric edge cases for non alpha-numeric chars in URLs
+		// From http://doriantaylor.com/policy/other-non-alpha-numeric-characters-in-http-urls
+		assertTrue("http://news.example.com/money/$5.2-billion-merger is valid", uv.isValid("http://news.example.com/money/$5.2-billion-merger"));
+		assertTrue("http://blog.example.com/wutchoo-talkin'-bout-willis!? is valid", uv.isValid("http://blog.example.com/wutchoo-talkin'-bout-willis!?"));
+		assertTrue("https://spam.example.com/viagra-only-$2-per-pill* is valid", uv.isValid("https://spam.example.com/viagra-only-$2-per-pill*"));
 	}
 
 	@Test
 	public void IsValidQueryTest() {
-		UrlValidatorExtension uv = new UrlValidatorExtension();
+		UrlValidator uv = new UrlValidator();
 		assertTrue("null input to isValidQuery should return true",uv.isValidQuery(null));
 		assertTrue("query of blank space \"\" returns true",uv.isValidQuery(""));
 		// What is a true query???
@@ -105,8 +141,8 @@ public class URLValidatorUnitTest {
 		// BUG (9): isValidQuery doesn't flag queries with disallowed characters as invalid
 		// assertFalse("invalid query - disallowed characters", uv.isValidQuery("?kp.ndvrlq1Q,M'+UZYK?`zqhzb%a>~A\""));
 
-		// Does # represent a missing query?
-		//assertFalse("query with \"#\" should return false",uv.isValidQuery("#"));
+		// QUESTION: Does # represent a missing query?
+		// assertFalse("query with \"#\" should return false",uv.isValidQuery("#"));
 	}
 
 	@Test
