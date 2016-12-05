@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 import java.util.Random;
+import java.net.URLEncoder;
 
 public class RandomURLTest {
 
@@ -663,6 +664,36 @@ public class RandomURLTest {
 			// In this instance, I think our oracle is wrong.
 		}
 	}
+
+
+	// Ensure that percent encoding printable ascii works.
+	@Test
+	public void testRandomDomainEncoded() {
+		Random r = new Random();
+		UrlValidator validator = new UrlValidator();
+		UrlValidatorOracle oracle =  new UrlValidatorOracle();
+		String testString = new String();
+		for (int i = 0; i < 1000; i++) {
+			testString = "http://www.";
+
+			try {
+				testString += URLEncoder.encode(getRandomDomain(2), "UTF-8");
+			} catch (java.io.UnsupportedEncodingException uee) {
+				// blah
+			}
+
+			testString += ".edu/pub/ietf/uri/historical.html#ASDFGJKL";
+			// Provide some useful output
+			String message = new String();
+			message = "Test String: ";
+			message += testString;
+			message += " Validator: ";
+			message += validator.isValid(testString);
+			message += " Oracle: ";
+			message += oracle.isValid(testString);
+		}
+	}
+
 
 	@Test
 	public void testRandomFragmentsAlphaNumeric() {

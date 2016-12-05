@@ -18,8 +18,10 @@ public class TestInetAddressValidator  {
     // The last digit is reserved, but it's still a valid IP
     assertTrue("127.0.0.0", iv.isValidInet4Address("127.0.0.0"));
 
-    // BUG: Segment values should be 1 - 255
-    // assertFalse("192.168.999.256", iv.isValid("192.168.999.256"));
+
+    // BUG 2: Segment values should be 1 - 255
+    //assertFalse("192.168.999.256", iv.isValid("192.168.999.256"));
+    //assertFalse("999.999.999.999", iv.isValidInet4Address("999.999.999.999"));
 
     // A 32-bit Decimal Representation is technically valid, but maybe not since
     // we're only validating string representations here...
@@ -47,13 +49,12 @@ public class TestInetAddressValidator  {
     assertFalse("null", iv.isValidInet4Address(null));
     assertFalse("...", iv.isValidInet4Address("..."));
 
-    // Not sure if all 0s is valid
-    // assertFalse("000.000.000.000", iv.isValid("000.000.000.000"));
+    // An IP address of 0.0.0.0 is weird, but valid
+    assertTrue("000.000.000.000 is valid", iv.isValid("000.000.000.000"));
+    assertTrue("0.0.0.0 is valid", iv.isValid("0.0.0.0"));
+
     assertFalse("10..123.120", iv.isValidInet4Address("10..123.120"));
 
     assertFalse("625.3f.12348721.123.120", iv.isValidInet4Address("625.3f.12348721.123.120"));
-
-
-
   }
 }

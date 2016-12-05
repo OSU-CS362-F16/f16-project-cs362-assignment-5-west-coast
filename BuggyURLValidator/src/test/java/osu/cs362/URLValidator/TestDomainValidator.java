@@ -50,7 +50,7 @@ public class TestDomainValidator  {
 
     // It's only a TLD if it's at the end of the string
     assertTrue("host.org.com.gov.co.br", dv.isValid("host.org.com.gov.co.br"));
-    // assertTrue("google.com.uk", dv.isValid("google.com.uk"));
+    assertTrue("google.com.uk", dv.isValid("google.com.uk"));
 
     // Domains that start and end with numbers
     assertTrue("482ksafj239r8.edu",dv.isValid("482ksafj239r8.edu"));
