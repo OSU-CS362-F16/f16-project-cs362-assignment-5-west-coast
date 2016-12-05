@@ -1,0 +1,10 @@
+file
+ http://example.org
+http://example.org/a b
+http://example.org/"%<>\^`{|}
+http://example.org/a-umlaut-ä
+http://a-umlaut-ä.org/
+http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]/
+http://a[b].example.org/
+opaquelocktoken:5fe6e7e0-1bb3-11df-9f3e-a5b17f9068f4
+urn:ietf:rfc:3986

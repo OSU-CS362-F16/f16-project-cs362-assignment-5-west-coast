@@ -1,0 +1,3 @@
+http://?df.ws/123
+ftp://foo.bar/baz
+http://foo.bar/?q=Test%20URL-encoded%20stuff

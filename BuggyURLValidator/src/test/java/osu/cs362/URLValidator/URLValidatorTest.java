@@ -175,6 +175,7 @@ public class URLValidatorTest {
 	// test all the input files against expected list
 	// inputs are in ./TestData/input
 	// expected results are in ./TestData/expected and have the same format as the results
+	// results .csv files are written to ./target/results folder
 	// tests are commented out for now to facilitate sorting the input files
 	@Test
 	public void IsValidInputFileTest() {
@@ -215,8 +216,14 @@ public class URLValidatorTest {
 	//URLs that should pass under all possible inputs, rfc2396URI_00.txt
 	@Test
 	public void IsValidGoodInputFileTest() {
+		List<String> inputMathiasbynensStrings = readStrings("./TestData/input/mathiasbynens.txt"); // reads each line of file as a string
+		List<String> inputGreenbytesStrings = readStrings("./TestData/input/greenbytes.txt"); // reads each line of file as a string
+
 		List<String> inputListStrings = readStrings("./TestData/input/rfc2396URI_00.txt"); // reads each line of file as a string
-		RegexValidator authorityValidator = new RegexValidator(".*");
+		inputListStrings.addAll(inputMathiasbynensStrings);
+		inputListStrings.addAll(inputGreenbytesStrings);
+		
+		RegexValidator authorityValidator = new RegexValidator(regexStr);
 
 		for (int j=0; j<inputListStrings.size(); j++) { 
 			UrlValidator uv1 = new UrlValidator(schemes);
@@ -322,7 +329,7 @@ public class URLValidatorTest {
 	
 
 	// userid and password are allowed in the rfc2396.txt reference
-	// BUG:
+	// BUG: expected result for URLs containing userid and password is valid
 	//mathiasbynens_userid_password.txt
 	@Test
 	public void urlValidatorUserIdPasswordUrlsTest() {
@@ -333,16 +340,32 @@ public class URLValidatorTest {
 		}
 	}
 	
-	// test special case that inxludes a comma since results are saved as .csv files
-	// rfc2396.txt does 
+	// Verify when regex validator set to "^[\\w-\\.]*$" that URLs that aren't normally allowed pass
 	@Test
-	//http://-.~_!$&'()*+,;=:%40:80%2f::::::@example.com
+	public void urlValidatorRegexTest() {
+		RegexValidator authorityValidator = new RegexValidator(regexStr);
+		List<String> inputListStrings = readStrings("./TestData/input/regex_default_fail.txt"); // reads each line of file as a string
+		UrlValidator uv = new UrlValidator(authorityValidator, UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_2_SLASHES);
+		UrlValidator uvDefault = new UrlValidator(UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_2_SLASHES);
+		for (int j=0; j<inputListStrings.size(); j++) {
+			assertTrue("url should return true using \"^[\\\\w-\\\\.]*$\" for Regex validator on \"" + inputListStrings.get(j) + "\" " , uv.isValid(inputListStrings.get(j)));
+			assertFalse("url should return false using default REGEX validator for \"" + inputListStrings.get(j) + "\" " , uvDefault.isValid(inputListStrings.get(j)));
+		}
+	}
+	
+	
+	
+	// test special case that includes a comma since results are saved as .csv files
+	// rfc2396.txt requires "," to be escaped
+	@Test
 	public void urlWithCommaTest() {
 		List<String> inputListStrings = new ArrayList();
 		inputListStrings.add("http://-.~_!$&'()*+,;=:%40:80%2f::::::@example.com");
+		inputListStrings.add("data:,A%20brief%20note%25foo#bar");
+		
 		UrlValidator uv = new UrlValidator(UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_2_SLASHES);
 		for (int j=0; j<inputListStrings.size(); j++) {
-			assertFalse("url should always return true for \"" + inputListStrings.get(j) + "\" " , uv.isValid(inputListStrings.get(j)));
+			assertFalse("url should return false for \"" + inputListStrings.get(j) + "\" " , uv.isValid(inputListStrings.get(j)));
 		}
 	}
 		

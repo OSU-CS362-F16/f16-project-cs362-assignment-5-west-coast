@@ -1,3 +1,8 @@
 http://www.ietf.org/rfc/rfc2396.txt
 http://www.w3.org/Addressing/
 https://abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.org/
+http://example.org/a%20b
+http://example.org/a%
+http://example.org 
+http://example.org/a-umlaut-%C3%A4
+http://example.org/a-umlaut-%c3%a4
