@@ -1,0 +1,4 @@
+gopher://spinaltap.micro.umn.edu/00/Weather/California/Los%20Angeles
+mailto:mduerst@ifi.unizh.ch
+news:comp.infosystems.www.servers.unix
+telnet://melvyl.ucop.edu/

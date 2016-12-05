@@ -1,0 +1,4 @@
+http://foo.com/blah_(wikipedia)#cite-1
+http://foo.com/blah_(wikipedia)_blah#cite-1
+https://foo.com/blah_blah#
+http://www.ics.uci.edu/pub/ietf/uri/historical.html#WARNING

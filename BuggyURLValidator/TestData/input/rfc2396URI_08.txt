@@ -1,0 +1,5 @@
+file://path/index.html
+file:/path/index.html
+file:///C:/cygwin64/home/Corinna/cs362/project/BuggyURLValidator/target/site/cobertura/index.html
+http://localhost
+file:index.html

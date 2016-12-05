@@ -1,0 +1,6 @@
+http://www.ietf.org/rfc/rfc2396.txt
+http://www.w3.org/Addressing/
+ftp://ds.iternic.net/rfc/
+ftp://ftp.is.co.za/rfc/rfc1808.txt
+http://www.math.uio.no/faq/compression-faq/part1.html
+https://foo.bar.org/
